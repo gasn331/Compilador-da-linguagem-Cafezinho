@@ -1,30 +1,22 @@
 %{
-      #include "type.h"
+        #include "type.h"
 	#include <stdio.h>
-      #include <string.h>
-      static char* enumStrings[] = {"programa","DeclFuncVar1","DeclFuncVar2","DeclFuncVar3","DeclFunc","ListaParametrosCont3",
-"ListaParametrosCont4","Bloco1","ListaDeclVar2","ListaDeclVar3","Tipo","ListaComando2","Retorne","Leia","Escreva",
-"EscrevaString","Novalinha","Se","SeSenao","Enquanto","Atribuir","SeTernario","Or","And","IgualIgual","Diferente","Menor",
-"Maior","MenorIg","MaiorIg","Mais","Menos","Vezes","Divisao","Resto","Negativo","Negacao","IdentificadorBEB","Identificador",
-"IdentificadorLista","Carconst","Intconst","Virgula"};
-      extern int yylineno;
-      node *mknode(Operator type, int line, node *first, node *second, node *third, char *token);
-      void printtree(node *tree);
-      char *convert2Str(int x);
-      void createSymbolTree(node *tree);
-      symbolTree *scopeTree;
-      node *tree;
-      char escopo[100];
+        #include <string.h>
+        node *mknode(Operator type, int line, node *first, node *second, node *third, char *token);
+        //void printtree(node *tree); 
+        node *tree;
+        //#define YYSTYPE struct node *
 	yydebug=1;
 %}
 
 %union{
         int lineno;
         char *string;
-        node* node_type;
+        node *node_type;
 }
 
 %start programa
+
 %type<node_type> DeclFuncVar DeclProg DeclVar DeclFunc;
 %type<node_type> ListaParametros ListaParametrosCont Bloco ListaDeclVar;
 %type<node_type> Tipo ListaComando Comando Expr AssignExpr CondExpr OrExpr;
@@ -38,17 +30,17 @@
 %token ID INTCONST CARCONST STRING
 
 %%
-programa : DeclFuncVar DeclProg {strcpy(escopo,"programa");tree = mknode(programa,yylineno,$1,$2,NULL,NULL);}
+programa : DeclFuncVar DeclProg {tree = mknode(programa,yylineno,$1,$2,NULL,NULL);}
          ;
 
-DeclFuncVar : Tipo ID DeclVar SEMI DeclFuncVar { strcpy(escopo,$2string);$$ = mknode(DeclFuncVar1,yylineno,$1,$3,$5,NULL);}
-            | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar {strcpy(escopo,$2);$$ = mknode(DeclFuncVar2,yylineno,$1,$6,$8,NULL);}
-            | Tipo ID DeclFunc DeclFuncVar {strcpy(escopo,$2);$$ = mknode(DeclFuncVar3,yylineno,$1,$3,$4,NULL);}
+DeclFuncVar : Tipo ID DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar1,yylineno,$1,$3,$5,NULL);}
+            | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar2,yylineno,$1,$6,$8,NULL);}
+            | Tipo ID DeclFunc DeclFuncVar {$$ = mknode(DeclFuncVar3,yylineno,$1,$3,$4,NULL);}
             | {$$ = NULL;}
             ;
 
 DeclProg : 
-	PROGRAMA Bloco {strcpy(escopo,yyval.string);$$ = $2;}
+	PROGRAMA Bloco {$$ = $2;}
          ;
 
 DeclVar : VIRGULA ID DeclVar {$$ = $3;}
@@ -102,6 +94,7 @@ Comando :
 
 Expr : AssignExpr {$$ = $1;}
      ;
+//eeeeeeeeeeeeeeeenum a partir daqui
 AssignExpr : CondExpr {$$ = $1;}
            | LValueExpr ATRIB AssignExpr {$$ = mknode(Atribuir,yylineno,$1,$3,NULL,NULL);}
            ;
@@ -147,16 +140,16 @@ UnExpr : MENOS PrimExpr {$$ = mknode(Negativo,yylineno,$2,NULL,NULL,NULL);}
        | PrimExpr {$$ = $1;}
        ;
 
-LValueExpr : ID EBRACK Expr DBRACK {$$ = mknode(IdentificadorBEB,yylineno,$3,NULL,NULL,yyval.string);}
-           | ID {$$ = mknode(Identificador,yylineno,NULL,NULL,NULL,yyval.string);}
+LValueExpr : ID EBRACK Expr DBRACK {$$ = mknode(IdentificadorBEB,yylineno,$3,NULL,NULL,NULL);}
+           | ID {$$ = mknode(Identificador,yylineno,NULL,NULL,NULL,NULL);}
            ;
 
-PrimExpr : ID EPAREN ListExpr DPAREN {$$ = mknode(IdentificadorLista,yylineno,$3,NULL,NULL,yyval.string);}
-         | ID EPAREN DPAREN {$$ = mknode(Identificador,yylineno,NULL,NULL,NULL,yyval.string);}
-         | ID EBRACK Expr DBRACK {$$ = mknode(IdentificadorBEB,yylineno,$3,NULL,NULL,yyval.string);}
+PrimExpr : ID EPAREN ListExpr DPAREN {$$ = mknode(IdentificadorLista,yylineno,$3,NULL,NULL,NULL);}
+         | ID EPAREN DPAREN {$$ = mknode(Identificador,yylineno,NULL,NULL,NULL,NULL);}
+         | ID EBRACK Expr DBRACK {$$ = mknode(IdentificadorBEB,yylineno,$3,NULL,NULL,NULL);}
          | ID {$$ = mknode(Identificador,yylineno,NULL,NULL,NULL,yyval.string);}
          | CARCONST {$$ = mknode(Carconst,yylineno,NULL,NULL,NULL,yyval.string);}
-         | INTCONST {$$ = mknode(Intconst,yylineno,NULL,NULL,NULL,convert2Str(yyval.string));}
+         | INTCONST {$$ = mknode(Intconst,yylineno,NULL,NULL,NULL,yyval.string);}
          | EPAREN Expr DPAREN {$$ = $2;}
          ;
 
@@ -170,18 +163,12 @@ yywrap(){
 }
 
 main(){
-        #ifdef YYDEBUG
-                yydebug = 1;
-        #endif
 	yyparse();
         printtree(tree);
         
 }
 
 node *mknode(Operator type, int line, node *first, node *second, node *third, char *token){
-      printf("ESCOPO!!!!!!!!!!!!!!!1 %s\n", escopo);
-        printf("MAKE NEW NODE");
-        printf("TRYING TO SAVE: %s %d\n", enumStrings[(int)type],line);
         node *newnode = (node *)malloc(sizeof(node));
         if(newnode == NULL) return NULL;
         newnode->type = type;
@@ -189,18 +176,13 @@ node *mknode(Operator type, int line, node *first, node *second, node *third, ch
         newnode->first = first;
         newnode->second = second;
         newnode->third = third;
-        printf("TRYING TO SAVE: %s %d\n", enumStrings[(int)type],line);
-        if(!token) printf("TOKEN NULL\n");
-        if(token != NULL){
+        if(token){
                newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
                strcpy(newnode->token,token); 
         }
-        else newnode->token = NULL;
-        printf("WILL RETURN NOW\n");
         return newnode;
 }
 void printtree(node *tree) {
-        //printf("PRINTING TREE\n");
         if(tree == NULL) return;
         //switch operator
         switch(tree->type){
@@ -250,7 +232,7 @@ void printtree(node *tree) {
                 printf("Escreva ");
                 break;
           case EscrevaString:
-                printf("EscrevaString %s ", tree->token);
+                printf("EscrevaString ");
                 break;
           case Novalinha:
                 printf("Novalinha ");
@@ -316,13 +298,13 @@ void printtree(node *tree) {
                 printf("! ");
                 break;
           case IdentificadorBEB:
-                printf("Identificador[] %s", tree->token);
+                printf("Identificador[] ");
                 break;
           case Identificador:
-                printf("Identificador %s", tree->token);
+                printf("Identificador ");
                 break;
           case IdentificadorLista:
-                printf("Identificador() %s", tree->token);
+                printf("Identificador() ");
                 break;
           case Carconst:
                 printf("Carconst %s ", tree->token);
@@ -341,10 +323,3 @@ void printtree(node *tree) {
         printtree(tree->second);
         printtree(tree->third);
  }
-
- char *convert2Str(int x){
-        int length = snprintf( NULL, 0, "%d", x );
-        char* str = malloc( length + 1 );
-        snprintf( str, length + 1, "%d", x );
-        return str;
-}

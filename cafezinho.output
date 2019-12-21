@@ -1,0 +1,2106 @@
+Estado 156 conflitos: 1 de deslocamento/redução
+
+
+Gramática
+
+    0 $accept: programa $end
+
+    1 programa: DeclFuncVar DeclProg
+
+    2 DeclFuncVar: Tipo ID DeclVar SEMI DeclFuncVar
+    3            | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar
+    4            | Tipo ID DeclFunc DeclFuncVar
+    5            | %empty
+
+    6 DeclProg: PROGRAMA Bloco
+
+    7 DeclVar: VIRGULA ID DeclVar
+    8        | VIRGULA ID EBRACK INTCONST DBRACK DeclVar
+    9        | %empty
+
+   10 DeclFunc: EPAREN ListaParametros DPAREN Bloco
+
+   11 ListaParametros: %empty
+   12                | ListaParametrosCont
+
+   13 ListaParametrosCont: Tipo ID
+   14                    | Tipo ID EBRACK DBRACK
+   15                    | Tipo ID VIRGULA ListaParametrosCont
+   16                    | Tipo ID EBRACK DBRACK VIRGULA ListaParametrosCont
+
+   17 Bloco: EBRACE ListaDeclVar ListaComando DBRACE
+   18      | EBRACE ListaDeclVar DBRACE
+
+   19 ListaDeclVar: %empty
+   20             | Tipo ID DeclVar SEMI ListaDeclVar
+   21             | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar
+
+   22 Tipo: DECLARACAO_INT
+   23     | DECLARACAO_CAR
+
+   24 ListaComando: Comando
+   25             | Comando ListaComando
+
+   26 Comando: SEMI
+   27        | Expr SEMI
+   28        | RETORNE Expr SEMI
+   29        | LEIA LValueExpr SEMI
+   30        | ESCREVA Expr SEMI
+   31        | ESCREVA STRING SEMI
+   32        | NOVALINHA SEMI
+   33        | SE EPAREN Expr DPAREN ENTAO Comando
+   34        | SE EPAREN Expr DPAREN ENTAO Comando SENAO Comando
+   35        | ENQUANTO EPAREN Expr DPAREN EXECUTE Comando
+   36        | Bloco
+
+   37 Expr: AssignExpr
+
+   38 AssignExpr: CondExpr
+   39           | LValueExpr ATRIB AssignExpr
+
+   40 CondExpr: OrExpr
+   41         | OrExpr INTERROG Expr DOISPONT CondExpr
+
+   42 OrExpr: OrExpr OUEXPR AndExpr
+   43       | AndExpr
+
+   44 AndExpr: AndExpr EEXPR EqExpr
+   45        | EqExpr
+
+   46 EqExpr: EqExpr DBIGUAL DesigExpr
+   47       | EqExpr DIFF DesigExpr
+   48       | DesigExpr
+
+   49 DesigExpr: DesigExpr MENORQ AddExpr
+   50          | DesigExpr MAIORQ AddExpr
+   51          | DesigExpr MENORIGQ AddExpr
+   52          | DesigExpr MAIORIGQ AddExpr
+   53          | AddExpr
+
+   54 AddExpr: AddExpr MAIS MulExpr
+   55        | AddExpr MENOS MulExpr
+   56        | MulExpr
+
+   57 MulExpr: MulExpr VEZES UnExpr
+   58        | MulExpr DIV UnExpr
+   59        | MulExpr RESTO UnExpr
+   60        | UnExpr
+
+   61 UnExpr: MENOS PrimExpr
+   62       | ANULEXPR PrimExpr
+   63       | PrimExpr
+
+   64 LValueExpr: ID EBRACK Expr DBRACK
+   65           | ID
+
+   66 PrimExpr: ID EPAREN ListExpr DPAREN
+   67         | ID EPAREN DPAREN
+   68         | ID EBRACK Expr DBRACK
+   69         | ID
+   70         | CARCONST
+   71         | INTCONST
+   72         | EPAREN Expr DPAREN
+
+   73 ListExpr: AssignExpr
+   74         | ListExpr VIRGULA AssignExpr
+
+
+Terminais, com as regras onde eles aparecem
+
+$end (0) 0
+error (256)
+PROGRAMA (258) 6
+DECLARACAO_INT (259) 22
+DECLARACAO_CAR (260) 23
+RETORNE (261) 28
+LEIA (262) 29
+ESCREVA (263) 30 31
+NOVALINHA (264) 32
+SE (265) 33 34
+ENTAO (266) 33 34
+SENAO (267) 34
+ENQUANTO (268) 35
+EXECUTE (269) 35
+MAIS (270) 54
+MENOS (271) 55 61
+VEZES (272) 57
+DIV (273) 58
+RESTO (274) 59
+OUEXPR (275) 42
+EEXPR (276) 44
+ANULEXPR (277) 62
+DBIGUAL (278) 46
+DIFF (279) 47
+MAIORQ (280) 50
+MENORQ (281) 49
+MAIORIGQ (282) 52
+MENORIGQ (283) 51
+INTERROG (284) 41
+DOISPONT (285) 41
+EPAREN (286) 10 33 34 35 66 67 72
+DPAREN (287) 10 33 34 35 66 67 72
+DBRACK (288) 3 8 14 16 21 64 68
+EBRACK (289) 3 8 14 16 21 64 68
+EBRACE (290) 17 18
+DBRACE (291) 17 18
+SEMI (292) 2 3 20 21 26 27 28 29 30 31 32
+VIRGULA (293) 7 8 15 16 74
+ATRIB (294) 39
+ID (295) 2 3 4 7 8 13 14 15 16 20 21 64 65 66 67 68 69
+INTCONST (296) 3 8 21 71
+CARCONST (297) 70
+STRING (298) 31
+
+
+Não terminais com as regras onde eles aparecem
+
+$accept (44)
+    à esquerda: 0
+programa (45)
+    à esquerda: 1, à direita: 0
+DeclFuncVar (46)
+    à esquerda: 2 3 4 5, à direita: 1 2 3 4
+DeclProg (47)
+    à esquerda: 6, à direita: 1
+DeclVar (48)
+    à esquerda: 7 8 9, à direita: 2 3 7 8 20 21
+DeclFunc (49)
+    à esquerda: 10, à direita: 4
+ListaParametros (50)
+    à esquerda: 11 12, à direita: 10
+ListaParametrosCont (51)
+    à esquerda: 13 14 15 16, à direita: 12 15 16
+Bloco (52)
+    à esquerda: 17 18, à direita: 6 10 36
+ListaDeclVar (53)
+    à esquerda: 19 20 21, à direita: 17 18 20 21
+Tipo (54)
+    à esquerda: 22 23, à direita: 2 3 4 13 14 15 16 20 21
+ListaComando (55)
+    à esquerda: 24 25, à direita: 17 25
+Comando (56)
+    à esquerda: 26 27 28 29 30 31 32 33 34 35 36, à direita: 24 25
+    33 34 35
+Expr (57)
+    à esquerda: 37, à direita: 27 28 30 33 34 35 41 64 68 72
+AssignExpr (58)
+    à esquerda: 38 39, à direita: 37 39 73 74
+CondExpr (59)
+    à esquerda: 40 41, à direita: 38 41
+OrExpr (60)
+    à esquerda: 42 43, à direita: 40 41 42
+AndExpr (61)
+    à esquerda: 44 45, à direita: 42 43 44
+EqExpr (62)
+    à esquerda: 46 47 48, à direita: 44 45 46 47
+DesigExpr (63)
+    à esquerda: 49 50 51 52 53, à direita: 46 47 48 49 50 51 52
+AddExpr (64)
+    à esquerda: 54 55 56, à direita: 49 50 51 52 53 54 55
+MulExpr (65)
+    à esquerda: 57 58 59 60, à direita: 54 55 56 57 58 59
+UnExpr (66)
+    à esquerda: 61 62 63, à direita: 57 58 59 60
+LValueExpr (67)
+    à esquerda: 64 65, à direita: 29 39
+PrimExpr (68)
+    à esquerda: 66 67 68 69 70 71 72, à direita: 61 62 63
+ListExpr (69)
+    à esquerda: 73 74, à direita: 66 74
+
+
+Estado 0
+
+    0 $accept: . programa $end
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 5 (DeclFuncVar)
+
+    programa     ir ao estado 3
+    DeclFuncVar  ir ao estado 4
+    Tipo         ir ao estado 5
+
+
+Estado 1
+
+   22 Tipo: DECLARACAO_INT .
+
+    $padrão  reduzir usando a regra 22 (Tipo)
+
+
+Estado 2
+
+   23 Tipo: DECLARACAO_CAR .
+
+    $padrão  reduzir usando a regra 23 (Tipo)
+
+
+Estado 3
+
+    0 $accept: programa . $end
+
+    $end  deslocar, e ir ao estado 6
+
+
+Estado 4
+
+    1 programa: DeclFuncVar . DeclProg
+
+    PROGRAMA  deslocar, e ir ao estado 7
+
+    DeclProg  ir ao estado 8
+
+
+Estado 5
+
+    2 DeclFuncVar: Tipo . ID DeclVar SEMI DeclFuncVar
+    3            | Tipo . ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar
+    4            | Tipo . ID DeclFunc DeclFuncVar
+
+    ID  deslocar, e ir ao estado 9
+
+
+Estado 6
+
+    0 $accept: programa $end .
+
+    $padrão  aceitar
+
+
+Estado 7
+
+    6 DeclProg: PROGRAMA . Bloco
+
+    EBRACE  deslocar, e ir ao estado 10
+
+    Bloco  ir ao estado 11
+
+
+Estado 8
+
+    1 programa: DeclFuncVar DeclProg .
+
+    $padrão  reduzir usando a regra 1 (programa)
+
+
+Estado 9
+
+    2 DeclFuncVar: Tipo ID . DeclVar SEMI DeclFuncVar
+    3            | Tipo ID . EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar
+    4            | Tipo ID . DeclFunc DeclFuncVar
+
+    EPAREN   deslocar, e ir ao estado 12
+    EBRACK   deslocar, e ir ao estado 13
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar   ir ao estado 15
+    DeclFunc  ir ao estado 16
+
+
+Estado 10
+
+   17 Bloco: EBRACE . ListaDeclVar ListaComando DBRACE
+   18      | EBRACE . ListaDeclVar DBRACE
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 19 (ListaDeclVar)
+
+    ListaDeclVar  ir ao estado 17
+    Tipo          ir ao estado 18
+
+
+Estado 11
+
+    6 DeclProg: PROGRAMA Bloco .
+
+    $padrão  reduzir usando a regra 6 (DeclProg)
+
+
+Estado 12
+
+   10 DeclFunc: EPAREN . ListaParametros DPAREN Bloco
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 11 (ListaParametros)
+
+    ListaParametros      ir ao estado 19
+    ListaParametrosCont  ir ao estado 20
+    Tipo                 ir ao estado 21
+
+
+Estado 13
+
+    3 DeclFuncVar: Tipo ID EBRACK . INTCONST DBRACK DeclVar SEMI DeclFuncVar
+
+    INTCONST  deslocar, e ir ao estado 22
+
+
+Estado 14
+
+    7 DeclVar: VIRGULA . ID DeclVar
+    8        | VIRGULA . ID EBRACK INTCONST DBRACK DeclVar
+
+    ID  deslocar, e ir ao estado 23
+
+
+Estado 15
+
+    2 DeclFuncVar: Tipo ID DeclVar . SEMI DeclFuncVar
+
+    SEMI  deslocar, e ir ao estado 24
+
+
+Estado 16
+
+    4 DeclFuncVar: Tipo ID DeclFunc . DeclFuncVar
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 5 (DeclFuncVar)
+
+    DeclFuncVar  ir ao estado 25
+    Tipo         ir ao estado 5
+
+
+Estado 17
+
+   17 Bloco: EBRACE ListaDeclVar . ListaComando DBRACE
+   18      | EBRACE ListaDeclVar . DBRACE
+
+    RETORNE    deslocar, e ir ao estado 26
+    LEIA       deslocar, e ir ao estado 27
+    ESCREVA    deslocar, e ir ao estado 28
+    NOVALINHA  deslocar, e ir ao estado 29
+    SE         deslocar, e ir ao estado 30
+    ENQUANTO   deslocar, e ir ao estado 31
+    MENOS      deslocar, e ir ao estado 32
+    ANULEXPR   deslocar, e ir ao estado 33
+    EPAREN     deslocar, e ir ao estado 34
+    EBRACE     deslocar, e ir ao estado 10
+    DBRACE     deslocar, e ir ao estado 35
+    SEMI       deslocar, e ir ao estado 36
+    ID         deslocar, e ir ao estado 37
+    INTCONST   deslocar, e ir ao estado 38
+    CARCONST   deslocar, e ir ao estado 39
+
+    Bloco         ir ao estado 40
+    ListaComando  ir ao estado 41
+    Comando       ir ao estado 42
+    Expr          ir ao estado 43
+    AssignExpr    ir ao estado 44
+    CondExpr      ir ao estado 45
+    OrExpr        ir ao estado 46
+    AndExpr       ir ao estado 47
+    EqExpr        ir ao estado 48
+    DesigExpr     ir ao estado 49
+    AddExpr       ir ao estado 50
+    MulExpr       ir ao estado 51
+    UnExpr        ir ao estado 52
+    LValueExpr    ir ao estado 53
+    PrimExpr      ir ao estado 54
+
+
+Estado 18
+
+   20 ListaDeclVar: Tipo . ID DeclVar SEMI ListaDeclVar
+   21             | Tipo . ID EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar
+
+    ID  deslocar, e ir ao estado 55
+
+
+Estado 19
+
+   10 DeclFunc: EPAREN ListaParametros . DPAREN Bloco
+
+    DPAREN  deslocar, e ir ao estado 56
+
+
+Estado 20
+
+   12 ListaParametros: ListaParametrosCont .
+
+    $padrão  reduzir usando a regra 12 (ListaParametros)
+
+
+Estado 21
+
+   13 ListaParametrosCont: Tipo . ID
+   14                    | Tipo . ID EBRACK DBRACK
+   15                    | Tipo . ID VIRGULA ListaParametrosCont
+   16                    | Tipo . ID EBRACK DBRACK VIRGULA ListaParametrosCont
+
+    ID  deslocar, e ir ao estado 57
+
+
+Estado 22
+
+    3 DeclFuncVar: Tipo ID EBRACK INTCONST . DBRACK DeclVar SEMI DeclFuncVar
+
+    DBRACK  deslocar, e ir ao estado 58
+
+
+Estado 23
+
+    7 DeclVar: VIRGULA ID . DeclVar
+    8        | VIRGULA ID . EBRACK INTCONST DBRACK DeclVar
+
+    EBRACK   deslocar, e ir ao estado 59
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar  ir ao estado 60
+
+
+Estado 24
+
+    2 DeclFuncVar: Tipo ID DeclVar SEMI . DeclFuncVar
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 5 (DeclFuncVar)
+
+    DeclFuncVar  ir ao estado 61
+    Tipo         ir ao estado 5
+
+
+Estado 25
+
+    4 DeclFuncVar: Tipo ID DeclFunc DeclFuncVar .
+
+    $padrão  reduzir usando a regra 4 (DeclFuncVar)
+
+
+Estado 26
+
+   28 Comando: RETORNE . Expr SEMI
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 62
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 27
+
+   29 Comando: LEIA . LValueExpr SEMI
+
+    ID  deslocar, e ir ao estado 63
+
+    LValueExpr  ir ao estado 64
+
+
+Estado 28
+
+   30 Comando: ESCREVA . Expr SEMI
+   31        | ESCREVA . STRING SEMI
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+    STRING    deslocar, e ir ao estado 65
+
+    Expr        ir ao estado 66
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 29
+
+   32 Comando: NOVALINHA . SEMI
+
+    SEMI  deslocar, e ir ao estado 67
+
+
+Estado 30
+
+   33 Comando: SE . EPAREN Expr DPAREN ENTAO Comando
+   34        | SE . EPAREN Expr DPAREN ENTAO Comando SENAO Comando
+
+    EPAREN  deslocar, e ir ao estado 68
+
+
+Estado 31
+
+   35 Comando: ENQUANTO . EPAREN Expr DPAREN EXECUTE Comando
+
+    EPAREN  deslocar, e ir ao estado 69
+
+
+Estado 32
+
+   61 UnExpr: MENOS . PrimExpr
+
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    PrimExpr  ir ao estado 71
+
+
+Estado 33
+
+   62 UnExpr: ANULEXPR . PrimExpr
+
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    PrimExpr  ir ao estado 72
+
+
+Estado 34
+
+   72 PrimExpr: EPAREN . Expr DPAREN
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 73
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 35
+
+   18 Bloco: EBRACE ListaDeclVar DBRACE .
+
+    $padrão  reduzir usando a regra 18 (Bloco)
+
+
+Estado 36
+
+   26 Comando: SEMI .
+
+    $padrão  reduzir usando a regra 26 (Comando)
+
+
+Estado 37
+
+   64 LValueExpr: ID . EBRACK Expr DBRACK
+   65           | ID .
+   66 PrimExpr: ID . EPAREN ListExpr DPAREN
+   67         | ID . EPAREN DPAREN
+   68         | ID . EBRACK Expr DBRACK
+   69         | ID .
+
+    EPAREN  deslocar, e ir ao estado 74
+    EBRACK  deslocar, e ir ao estado 75
+
+    ATRIB     reduzir usando a regra 65 (LValueExpr)
+    $padrão  reduzir usando a regra 69 (PrimExpr)
+
+
+Estado 38
+
+   71 PrimExpr: INTCONST .
+
+    $padrão  reduzir usando a regra 71 (PrimExpr)
+
+
+Estado 39
+
+   70 PrimExpr: CARCONST .
+
+    $padrão  reduzir usando a regra 70 (PrimExpr)
+
+
+Estado 40
+
+   36 Comando: Bloco .
+
+    $padrão  reduzir usando a regra 36 (Comando)
+
+
+Estado 41
+
+   17 Bloco: EBRACE ListaDeclVar ListaComando . DBRACE
+
+    DBRACE  deslocar, e ir ao estado 76
+
+
+Estado 42
+
+   24 ListaComando: Comando .
+   25             | Comando . ListaComando
+
+    RETORNE    deslocar, e ir ao estado 26
+    LEIA       deslocar, e ir ao estado 27
+    ESCREVA    deslocar, e ir ao estado 28
+    NOVALINHA  deslocar, e ir ao estado 29
+    SE         deslocar, e ir ao estado 30
+    ENQUANTO   deslocar, e ir ao estado 31
+    MENOS      deslocar, e ir ao estado 32
+    ANULEXPR   deslocar, e ir ao estado 33
+    EPAREN     deslocar, e ir ao estado 34
+    EBRACE     deslocar, e ir ao estado 10
+    SEMI       deslocar, e ir ao estado 36
+    ID         deslocar, e ir ao estado 37
+    INTCONST   deslocar, e ir ao estado 38
+    CARCONST   deslocar, e ir ao estado 39
+
+    $padrão  reduzir usando a regra 24 (ListaComando)
+
+    Bloco         ir ao estado 40
+    ListaComando  ir ao estado 77
+    Comando       ir ao estado 42
+    Expr          ir ao estado 43
+    AssignExpr    ir ao estado 44
+    CondExpr      ir ao estado 45
+    OrExpr        ir ao estado 46
+    AndExpr       ir ao estado 47
+    EqExpr        ir ao estado 48
+    DesigExpr     ir ao estado 49
+    AddExpr       ir ao estado 50
+    MulExpr       ir ao estado 51
+    UnExpr        ir ao estado 52
+    LValueExpr    ir ao estado 53
+    PrimExpr      ir ao estado 54
+
+
+Estado 43
+
+   27 Comando: Expr . SEMI
+
+    SEMI  deslocar, e ir ao estado 78
+
+
+Estado 44
+
+   37 Expr: AssignExpr .
+
+    $padrão  reduzir usando a regra 37 (Expr)
+
+
+Estado 45
+
+   38 AssignExpr: CondExpr .
+
+    $padrão  reduzir usando a regra 38 (AssignExpr)
+
+
+Estado 46
+
+   40 CondExpr: OrExpr .
+   41         | OrExpr . INTERROG Expr DOISPONT CondExpr
+   42 OrExpr: OrExpr . OUEXPR AndExpr
+
+    OUEXPR    deslocar, e ir ao estado 79
+    INTERROG  deslocar, e ir ao estado 80
+
+    $padrão  reduzir usando a regra 40 (CondExpr)
+
+
+Estado 47
+
+   43 OrExpr: AndExpr .
+   44 AndExpr: AndExpr . EEXPR EqExpr
+
+    EEXPR  deslocar, e ir ao estado 81
+
+    $padrão  reduzir usando a regra 43 (OrExpr)
+
+
+Estado 48
+
+   45 AndExpr: EqExpr .
+   46 EqExpr: EqExpr . DBIGUAL DesigExpr
+   47       | EqExpr . DIFF DesigExpr
+
+    DBIGUAL  deslocar, e ir ao estado 82
+    DIFF     deslocar, e ir ao estado 83
+
+    $padrão  reduzir usando a regra 45 (AndExpr)
+
+
+Estado 49
+
+   48 EqExpr: DesigExpr .
+   49 DesigExpr: DesigExpr . MENORQ AddExpr
+   50          | DesigExpr . MAIORQ AddExpr
+   51          | DesigExpr . MENORIGQ AddExpr
+   52          | DesigExpr . MAIORIGQ AddExpr
+
+    MAIORQ    deslocar, e ir ao estado 84
+    MENORQ    deslocar, e ir ao estado 85
+    MAIORIGQ  deslocar, e ir ao estado 86
+    MENORIGQ  deslocar, e ir ao estado 87
+
+    $padrão  reduzir usando a regra 48 (EqExpr)
+
+
+Estado 50
+
+   53 DesigExpr: AddExpr .
+   54 AddExpr: AddExpr . MAIS MulExpr
+   55        | AddExpr . MENOS MulExpr
+
+    MAIS   deslocar, e ir ao estado 88
+    MENOS  deslocar, e ir ao estado 89
+
+    $padrão  reduzir usando a regra 53 (DesigExpr)
+
+
+Estado 51
+
+   56 AddExpr: MulExpr .
+   57 MulExpr: MulExpr . VEZES UnExpr
+   58        | MulExpr . DIV UnExpr
+   59        | MulExpr . RESTO UnExpr
+
+    VEZES  deslocar, e ir ao estado 90
+    DIV    deslocar, e ir ao estado 91
+    RESTO  deslocar, e ir ao estado 92
+
+    $padrão  reduzir usando a regra 56 (AddExpr)
+
+
+Estado 52
+
+   60 MulExpr: UnExpr .
+
+    $padrão  reduzir usando a regra 60 (MulExpr)
+
+
+Estado 53
+
+   39 AssignExpr: LValueExpr . ATRIB AssignExpr
+
+    ATRIB  deslocar, e ir ao estado 93
+
+
+Estado 54
+
+   63 UnExpr: PrimExpr .
+
+    $padrão  reduzir usando a regra 63 (UnExpr)
+
+
+Estado 55
+
+   20 ListaDeclVar: Tipo ID . DeclVar SEMI ListaDeclVar
+   21             | Tipo ID . EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar
+
+    EBRACK   deslocar, e ir ao estado 94
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar  ir ao estado 95
+
+
+Estado 56
+
+   10 DeclFunc: EPAREN ListaParametros DPAREN . Bloco
+
+    EBRACE  deslocar, e ir ao estado 10
+
+    Bloco  ir ao estado 96
+
+
+Estado 57
+
+   13 ListaParametrosCont: Tipo ID .
+   14                    | Tipo ID . EBRACK DBRACK
+   15                    | Tipo ID . VIRGULA ListaParametrosCont
+   16                    | Tipo ID . EBRACK DBRACK VIRGULA ListaParametrosCont
+
+    EBRACK   deslocar, e ir ao estado 97
+    VIRGULA  deslocar, e ir ao estado 98
+
+    $padrão  reduzir usando a regra 13 (ListaParametrosCont)
+
+
+Estado 58
+
+    3 DeclFuncVar: Tipo ID EBRACK INTCONST DBRACK . DeclVar SEMI DeclFuncVar
+
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar  ir ao estado 99
+
+
+Estado 59
+
+    8 DeclVar: VIRGULA ID EBRACK . INTCONST DBRACK DeclVar
+
+    INTCONST  deslocar, e ir ao estado 100
+
+
+Estado 60
+
+    7 DeclVar: VIRGULA ID DeclVar .
+
+    $padrão  reduzir usando a regra 7 (DeclVar)
+
+
+Estado 61
+
+    2 DeclFuncVar: Tipo ID DeclVar SEMI DeclFuncVar .
+
+    $padrão  reduzir usando a regra 2 (DeclFuncVar)
+
+
+Estado 62
+
+   28 Comando: RETORNE Expr . SEMI
+
+    SEMI  deslocar, e ir ao estado 101
+
+
+Estado 63
+
+   64 LValueExpr: ID . EBRACK Expr DBRACK
+   65           | ID .
+
+    EBRACK  deslocar, e ir ao estado 102
+
+    $padrão  reduzir usando a regra 65 (LValueExpr)
+
+
+Estado 64
+
+   29 Comando: LEIA LValueExpr . SEMI
+
+    SEMI  deslocar, e ir ao estado 103
+
+
+Estado 65
+
+   31 Comando: ESCREVA STRING . SEMI
+
+    SEMI  deslocar, e ir ao estado 104
+
+
+Estado 66
+
+   30 Comando: ESCREVA Expr . SEMI
+
+    SEMI  deslocar, e ir ao estado 105
+
+
+Estado 67
+
+   32 Comando: NOVALINHA SEMI .
+
+    $padrão  reduzir usando a regra 32 (Comando)
+
+
+Estado 68
+
+   33 Comando: SE EPAREN . Expr DPAREN ENTAO Comando
+   34        | SE EPAREN . Expr DPAREN ENTAO Comando SENAO Comando
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 106
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 69
+
+   35 Comando: ENQUANTO EPAREN . Expr DPAREN EXECUTE Comando
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 107
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 70
+
+   66 PrimExpr: ID . EPAREN ListExpr DPAREN
+   67         | ID . EPAREN DPAREN
+   68         | ID . EBRACK Expr DBRACK
+   69         | ID .
+
+    EPAREN  deslocar, e ir ao estado 74
+    EBRACK  deslocar, e ir ao estado 108
+
+    $padrão  reduzir usando a regra 69 (PrimExpr)
+
+
+Estado 71
+
+   61 UnExpr: MENOS PrimExpr .
+
+    $padrão  reduzir usando a regra 61 (UnExpr)
+
+
+Estado 72
+
+   62 UnExpr: ANULEXPR PrimExpr .
+
+    $padrão  reduzir usando a regra 62 (UnExpr)
+
+
+Estado 73
+
+   72 PrimExpr: EPAREN Expr . DPAREN
+
+    DPAREN  deslocar, e ir ao estado 109
+
+
+Estado 74
+
+   66 PrimExpr: ID EPAREN . ListExpr DPAREN
+   67         | ID EPAREN . DPAREN
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    DPAREN    deslocar, e ir ao estado 110
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AssignExpr  ir ao estado 111
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+    ListExpr    ir ao estado 112
+
+
+Estado 75
+
+   64 LValueExpr: ID EBRACK . Expr DBRACK
+   68 PrimExpr: ID EBRACK . Expr DBRACK
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 113
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 76
+
+   17 Bloco: EBRACE ListaDeclVar ListaComando DBRACE .
+
+    $padrão  reduzir usando a regra 17 (Bloco)
+
+
+Estado 77
+
+   25 ListaComando: Comando ListaComando .
+
+    $padrão  reduzir usando a regra 25 (ListaComando)
+
+
+Estado 78
+
+   27 Comando: Expr SEMI .
+
+    $padrão  reduzir usando a regra 27 (Comando)
+
+
+Estado 79
+
+   42 OrExpr: OrExpr OUEXPR . AndExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AndExpr    ir ao estado 114
+    EqExpr     ir ao estado 48
+    DesigExpr  ir ao estado 49
+    AddExpr    ir ao estado 50
+    MulExpr    ir ao estado 51
+    UnExpr     ir ao estado 52
+    PrimExpr   ir ao estado 54
+
+
+Estado 80
+
+   41 CondExpr: OrExpr INTERROG . Expr DOISPONT CondExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 115
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 81
+
+   44 AndExpr: AndExpr EEXPR . EqExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    EqExpr     ir ao estado 116
+    DesigExpr  ir ao estado 49
+    AddExpr    ir ao estado 50
+    MulExpr    ir ao estado 51
+    UnExpr     ir ao estado 52
+    PrimExpr   ir ao estado 54
+
+
+Estado 82
+
+   46 EqExpr: EqExpr DBIGUAL . DesigExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    DesigExpr  ir ao estado 117
+    AddExpr    ir ao estado 50
+    MulExpr    ir ao estado 51
+    UnExpr     ir ao estado 52
+    PrimExpr   ir ao estado 54
+
+
+Estado 83
+
+   47 EqExpr: EqExpr DIFF . DesigExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    DesigExpr  ir ao estado 118
+    AddExpr    ir ao estado 50
+    MulExpr    ir ao estado 51
+    UnExpr     ir ao estado 52
+    PrimExpr   ir ao estado 54
+
+
+Estado 84
+
+   50 DesigExpr: DesigExpr MAIORQ . AddExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AddExpr   ir ao estado 119
+    MulExpr   ir ao estado 51
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 85
+
+   49 DesigExpr: DesigExpr MENORQ . AddExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AddExpr   ir ao estado 120
+    MulExpr   ir ao estado 51
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 86
+
+   52 DesigExpr: DesigExpr MAIORIGQ . AddExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AddExpr   ir ao estado 121
+    MulExpr   ir ao estado 51
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 87
+
+   51 DesigExpr: DesigExpr MENORIGQ . AddExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AddExpr   ir ao estado 122
+    MulExpr   ir ao estado 51
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 88
+
+   54 AddExpr: AddExpr MAIS . MulExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    MulExpr   ir ao estado 123
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 89
+
+   55 AddExpr: AddExpr MENOS . MulExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    MulExpr   ir ao estado 124
+    UnExpr    ir ao estado 52
+    PrimExpr  ir ao estado 54
+
+
+Estado 90
+
+   57 MulExpr: MulExpr VEZES . UnExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    UnExpr    ir ao estado 125
+    PrimExpr  ir ao estado 54
+
+
+Estado 91
+
+   58 MulExpr: MulExpr DIV . UnExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    UnExpr    ir ao estado 126
+    PrimExpr  ir ao estado 54
+
+
+Estado 92
+
+   59 MulExpr: MulExpr RESTO . UnExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    UnExpr    ir ao estado 127
+    PrimExpr  ir ao estado 54
+
+
+Estado 93
+
+   39 AssignExpr: LValueExpr ATRIB . AssignExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AssignExpr  ir ao estado 128
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 94
+
+   21 ListaDeclVar: Tipo ID EBRACK . INTCONST DBRACK DeclVar SEMI ListaDeclVar
+
+    INTCONST  deslocar, e ir ao estado 129
+
+
+Estado 95
+
+   20 ListaDeclVar: Tipo ID DeclVar . SEMI ListaDeclVar
+
+    SEMI  deslocar, e ir ao estado 130
+
+
+Estado 96
+
+   10 DeclFunc: EPAREN ListaParametros DPAREN Bloco .
+
+    $padrão  reduzir usando a regra 10 (DeclFunc)
+
+
+Estado 97
+
+   14 ListaParametrosCont: Tipo ID EBRACK . DBRACK
+   16                    | Tipo ID EBRACK . DBRACK VIRGULA ListaParametrosCont
+
+    DBRACK  deslocar, e ir ao estado 131
+
+
+Estado 98
+
+   15 ListaParametrosCont: Tipo ID VIRGULA . ListaParametrosCont
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    ListaParametrosCont  ir ao estado 132
+    Tipo                 ir ao estado 21
+
+
+Estado 99
+
+    3 DeclFuncVar: Tipo ID EBRACK INTCONST DBRACK DeclVar . SEMI DeclFuncVar
+
+    SEMI  deslocar, e ir ao estado 133
+
+
+Estado 100
+
+    8 DeclVar: VIRGULA ID EBRACK INTCONST . DBRACK DeclVar
+
+    DBRACK  deslocar, e ir ao estado 134
+
+
+Estado 101
+
+   28 Comando: RETORNE Expr SEMI .
+
+    $padrão  reduzir usando a regra 28 (Comando)
+
+
+Estado 102
+
+   64 LValueExpr: ID EBRACK . Expr DBRACK
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 135
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 103
+
+   29 Comando: LEIA LValueExpr SEMI .
+
+    $padrão  reduzir usando a regra 29 (Comando)
+
+
+Estado 104
+
+   31 Comando: ESCREVA STRING SEMI .
+
+    $padrão  reduzir usando a regra 31 (Comando)
+
+
+Estado 105
+
+   30 Comando: ESCREVA Expr SEMI .
+
+    $padrão  reduzir usando a regra 30 (Comando)
+
+
+Estado 106
+
+   33 Comando: SE EPAREN Expr . DPAREN ENTAO Comando
+   34        | SE EPAREN Expr . DPAREN ENTAO Comando SENAO Comando
+
+    DPAREN  deslocar, e ir ao estado 136
+
+
+Estado 107
+
+   35 Comando: ENQUANTO EPAREN Expr . DPAREN EXECUTE Comando
+
+    DPAREN  deslocar, e ir ao estado 137
+
+
+Estado 108
+
+   68 PrimExpr: ID EBRACK . Expr DBRACK
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    Expr        ir ao estado 138
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 109
+
+   72 PrimExpr: EPAREN Expr DPAREN .
+
+    $padrão  reduzir usando a regra 72 (PrimExpr)
+
+
+Estado 110
+
+   67 PrimExpr: ID EPAREN DPAREN .
+
+    $padrão  reduzir usando a regra 67 (PrimExpr)
+
+
+Estado 111
+
+   73 ListExpr: AssignExpr .
+
+    $padrão  reduzir usando a regra 73 (ListExpr)
+
+
+Estado 112
+
+   66 PrimExpr: ID EPAREN ListExpr . DPAREN
+   74 ListExpr: ListExpr . VIRGULA AssignExpr
+
+    DPAREN   deslocar, e ir ao estado 139
+    VIRGULA  deslocar, e ir ao estado 140
+
+
+Estado 113
+
+   64 LValueExpr: ID EBRACK Expr . DBRACK
+   68 PrimExpr: ID EBRACK Expr . DBRACK
+
+    DBRACK  deslocar, e ir ao estado 141
+
+
+Estado 114
+
+   42 OrExpr: OrExpr OUEXPR AndExpr .
+   44 AndExpr: AndExpr . EEXPR EqExpr
+
+    EEXPR  deslocar, e ir ao estado 81
+
+    $padrão  reduzir usando a regra 42 (OrExpr)
+
+
+Estado 115
+
+   41 CondExpr: OrExpr INTERROG Expr . DOISPONT CondExpr
+
+    DOISPONT  deslocar, e ir ao estado 142
+
+
+Estado 116
+
+   44 AndExpr: AndExpr EEXPR EqExpr .
+   46 EqExpr: EqExpr . DBIGUAL DesigExpr
+   47       | EqExpr . DIFF DesigExpr
+
+    DBIGUAL  deslocar, e ir ao estado 82
+    DIFF     deslocar, e ir ao estado 83
+
+    $padrão  reduzir usando a regra 44 (AndExpr)
+
+
+Estado 117
+
+   46 EqExpr: EqExpr DBIGUAL DesigExpr .
+   49 DesigExpr: DesigExpr . MENORQ AddExpr
+   50          | DesigExpr . MAIORQ AddExpr
+   51          | DesigExpr . MENORIGQ AddExpr
+   52          | DesigExpr . MAIORIGQ AddExpr
+
+    MAIORQ    deslocar, e ir ao estado 84
+    MENORQ    deslocar, e ir ao estado 85
+    MAIORIGQ  deslocar, e ir ao estado 86
+    MENORIGQ  deslocar, e ir ao estado 87
+
+    $padrão  reduzir usando a regra 46 (EqExpr)
+
+
+Estado 118
+
+   47 EqExpr: EqExpr DIFF DesigExpr .
+   49 DesigExpr: DesigExpr . MENORQ AddExpr
+   50          | DesigExpr . MAIORQ AddExpr
+   51          | DesigExpr . MENORIGQ AddExpr
+   52          | DesigExpr . MAIORIGQ AddExpr
+
+    MAIORQ    deslocar, e ir ao estado 84
+    MENORQ    deslocar, e ir ao estado 85
+    MAIORIGQ  deslocar, e ir ao estado 86
+    MENORIGQ  deslocar, e ir ao estado 87
+
+    $padrão  reduzir usando a regra 47 (EqExpr)
+
+
+Estado 119
+
+   50 DesigExpr: DesigExpr MAIORQ AddExpr .
+   54 AddExpr: AddExpr . MAIS MulExpr
+   55        | AddExpr . MENOS MulExpr
+
+    MAIS   deslocar, e ir ao estado 88
+    MENOS  deslocar, e ir ao estado 89
+
+    $padrão  reduzir usando a regra 50 (DesigExpr)
+
+
+Estado 120
+
+   49 DesigExpr: DesigExpr MENORQ AddExpr .
+   54 AddExpr: AddExpr . MAIS MulExpr
+   55        | AddExpr . MENOS MulExpr
+
+    MAIS   deslocar, e ir ao estado 88
+    MENOS  deslocar, e ir ao estado 89
+
+    $padrão  reduzir usando a regra 49 (DesigExpr)
+
+
+Estado 121
+
+   52 DesigExpr: DesigExpr MAIORIGQ AddExpr .
+   54 AddExpr: AddExpr . MAIS MulExpr
+   55        | AddExpr . MENOS MulExpr
+
+    MAIS   deslocar, e ir ao estado 88
+    MENOS  deslocar, e ir ao estado 89
+
+    $padrão  reduzir usando a regra 52 (DesigExpr)
+
+
+Estado 122
+
+   51 DesigExpr: DesigExpr MENORIGQ AddExpr .
+   54 AddExpr: AddExpr . MAIS MulExpr
+   55        | AddExpr . MENOS MulExpr
+
+    MAIS   deslocar, e ir ao estado 88
+    MENOS  deslocar, e ir ao estado 89
+
+    $padrão  reduzir usando a regra 51 (DesigExpr)
+
+
+Estado 123
+
+   54 AddExpr: AddExpr MAIS MulExpr .
+   57 MulExpr: MulExpr . VEZES UnExpr
+   58        | MulExpr . DIV UnExpr
+   59        | MulExpr . RESTO UnExpr
+
+    VEZES  deslocar, e ir ao estado 90
+    DIV    deslocar, e ir ao estado 91
+    RESTO  deslocar, e ir ao estado 92
+
+    $padrão  reduzir usando a regra 54 (AddExpr)
+
+
+Estado 124
+
+   55 AddExpr: AddExpr MENOS MulExpr .
+   57 MulExpr: MulExpr . VEZES UnExpr
+   58        | MulExpr . DIV UnExpr
+   59        | MulExpr . RESTO UnExpr
+
+    VEZES  deslocar, e ir ao estado 90
+    DIV    deslocar, e ir ao estado 91
+    RESTO  deslocar, e ir ao estado 92
+
+    $padrão  reduzir usando a regra 55 (AddExpr)
+
+
+Estado 125
+
+   57 MulExpr: MulExpr VEZES UnExpr .
+
+    $padrão  reduzir usando a regra 57 (MulExpr)
+
+
+Estado 126
+
+   58 MulExpr: MulExpr DIV UnExpr .
+
+    $padrão  reduzir usando a regra 58 (MulExpr)
+
+
+Estado 127
+
+   59 MulExpr: MulExpr RESTO UnExpr .
+
+    $padrão  reduzir usando a regra 59 (MulExpr)
+
+
+Estado 128
+
+   39 AssignExpr: LValueExpr ATRIB AssignExpr .
+
+    $padrão  reduzir usando a regra 39 (AssignExpr)
+
+
+Estado 129
+
+   21 ListaDeclVar: Tipo ID EBRACK INTCONST . DBRACK DeclVar SEMI ListaDeclVar
+
+    DBRACK  deslocar, e ir ao estado 143
+
+
+Estado 130
+
+   20 ListaDeclVar: Tipo ID DeclVar SEMI . ListaDeclVar
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 19 (ListaDeclVar)
+
+    ListaDeclVar  ir ao estado 144
+    Tipo          ir ao estado 18
+
+
+Estado 131
+
+   14 ListaParametrosCont: Tipo ID EBRACK DBRACK .
+   16                    | Tipo ID EBRACK DBRACK . VIRGULA ListaParametrosCont
+
+    VIRGULA  deslocar, e ir ao estado 145
+
+    $padrão  reduzir usando a regra 14 (ListaParametrosCont)
+
+
+Estado 132
+
+   15 ListaParametrosCont: Tipo ID VIRGULA ListaParametrosCont .
+
+    $padrão  reduzir usando a regra 15 (ListaParametrosCont)
+
+
+Estado 133
+
+    3 DeclFuncVar: Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI . DeclFuncVar
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 5 (DeclFuncVar)
+
+    DeclFuncVar  ir ao estado 146
+    Tipo         ir ao estado 5
+
+
+Estado 134
+
+    8 DeclVar: VIRGULA ID EBRACK INTCONST DBRACK . DeclVar
+
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar  ir ao estado 147
+
+
+Estado 135
+
+   64 LValueExpr: ID EBRACK Expr . DBRACK
+
+    DBRACK  deslocar, e ir ao estado 148
+
+
+Estado 136
+
+   33 Comando: SE EPAREN Expr DPAREN . ENTAO Comando
+   34        | SE EPAREN Expr DPAREN . ENTAO Comando SENAO Comando
+
+    ENTAO  deslocar, e ir ao estado 149
+
+
+Estado 137
+
+   35 Comando: ENQUANTO EPAREN Expr DPAREN . EXECUTE Comando
+
+    EXECUTE  deslocar, e ir ao estado 150
+
+
+Estado 138
+
+   68 PrimExpr: ID EBRACK Expr . DBRACK
+
+    DBRACK  deslocar, e ir ao estado 151
+
+
+Estado 139
+
+   66 PrimExpr: ID EPAREN ListExpr DPAREN .
+
+    $padrão  reduzir usando a regra 66 (PrimExpr)
+
+
+Estado 140
+
+   74 ListExpr: ListExpr VIRGULA . AssignExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 37
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    AssignExpr  ir ao estado 152
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 141
+
+   64 LValueExpr: ID EBRACK Expr DBRACK .
+   68 PrimExpr: ID EBRACK Expr DBRACK .
+
+    ATRIB     reduzir usando a regra 64 (LValueExpr)
+    $padrão  reduzir usando a regra 68 (PrimExpr)
+
+
+Estado 142
+
+   41 CondExpr: OrExpr INTERROG Expr DOISPONT . CondExpr
+
+    MENOS     deslocar, e ir ao estado 32
+    ANULEXPR  deslocar, e ir ao estado 33
+    EPAREN    deslocar, e ir ao estado 34
+    ID        deslocar, e ir ao estado 70
+    INTCONST  deslocar, e ir ao estado 38
+    CARCONST  deslocar, e ir ao estado 39
+
+    CondExpr   ir ao estado 153
+    OrExpr     ir ao estado 46
+    AndExpr    ir ao estado 47
+    EqExpr     ir ao estado 48
+    DesigExpr  ir ao estado 49
+    AddExpr    ir ao estado 50
+    MulExpr    ir ao estado 51
+    UnExpr     ir ao estado 52
+    PrimExpr   ir ao estado 54
+
+
+Estado 143
+
+   21 ListaDeclVar: Tipo ID EBRACK INTCONST DBRACK . DeclVar SEMI ListaDeclVar
+
+    VIRGULA  deslocar, e ir ao estado 14
+
+    $padrão  reduzir usando a regra 9 (DeclVar)
+
+    DeclVar  ir ao estado 154
+
+
+Estado 144
+
+   20 ListaDeclVar: Tipo ID DeclVar SEMI ListaDeclVar .
+
+    $padrão  reduzir usando a regra 20 (ListaDeclVar)
+
+
+Estado 145
+
+   16 ListaParametrosCont: Tipo ID EBRACK DBRACK VIRGULA . ListaParametrosCont
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    ListaParametrosCont  ir ao estado 155
+    Tipo                 ir ao estado 21
+
+
+Estado 146
+
+    3 DeclFuncVar: Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar .
+
+    $padrão  reduzir usando a regra 3 (DeclFuncVar)
+
+
+Estado 147
+
+    8 DeclVar: VIRGULA ID EBRACK INTCONST DBRACK DeclVar .
+
+    $padrão  reduzir usando a regra 8 (DeclVar)
+
+
+Estado 148
+
+   64 LValueExpr: ID EBRACK Expr DBRACK .
+
+    $padrão  reduzir usando a regra 64 (LValueExpr)
+
+
+Estado 149
+
+   33 Comando: SE EPAREN Expr DPAREN ENTAO . Comando
+   34        | SE EPAREN Expr DPAREN ENTAO . Comando SENAO Comando
+
+    RETORNE    deslocar, e ir ao estado 26
+    LEIA       deslocar, e ir ao estado 27
+    ESCREVA    deslocar, e ir ao estado 28
+    NOVALINHA  deslocar, e ir ao estado 29
+    SE         deslocar, e ir ao estado 30
+    ENQUANTO   deslocar, e ir ao estado 31
+    MENOS      deslocar, e ir ao estado 32
+    ANULEXPR   deslocar, e ir ao estado 33
+    EPAREN     deslocar, e ir ao estado 34
+    EBRACE     deslocar, e ir ao estado 10
+    SEMI       deslocar, e ir ao estado 36
+    ID         deslocar, e ir ao estado 37
+    INTCONST   deslocar, e ir ao estado 38
+    CARCONST   deslocar, e ir ao estado 39
+
+    Bloco       ir ao estado 40
+    Comando     ir ao estado 156
+    Expr        ir ao estado 43
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 150
+
+   35 Comando: ENQUANTO EPAREN Expr DPAREN EXECUTE . Comando
+
+    RETORNE    deslocar, e ir ao estado 26
+    LEIA       deslocar, e ir ao estado 27
+    ESCREVA    deslocar, e ir ao estado 28
+    NOVALINHA  deslocar, e ir ao estado 29
+    SE         deslocar, e ir ao estado 30
+    ENQUANTO   deslocar, e ir ao estado 31
+    MENOS      deslocar, e ir ao estado 32
+    ANULEXPR   deslocar, e ir ao estado 33
+    EPAREN     deslocar, e ir ao estado 34
+    EBRACE     deslocar, e ir ao estado 10
+    SEMI       deslocar, e ir ao estado 36
+    ID         deslocar, e ir ao estado 37
+    INTCONST   deslocar, e ir ao estado 38
+    CARCONST   deslocar, e ir ao estado 39
+
+    Bloco       ir ao estado 40
+    Comando     ir ao estado 157
+    Expr        ir ao estado 43
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 151
+
+   68 PrimExpr: ID EBRACK Expr DBRACK .
+
+    $padrão  reduzir usando a regra 68 (PrimExpr)
+
+
+Estado 152
+
+   74 ListExpr: ListExpr VIRGULA AssignExpr .
+
+    $padrão  reduzir usando a regra 74 (ListExpr)
+
+
+Estado 153
+
+   41 CondExpr: OrExpr INTERROG Expr DOISPONT CondExpr .
+
+    $padrão  reduzir usando a regra 41 (CondExpr)
+
+
+Estado 154
+
+   21 ListaDeclVar: Tipo ID EBRACK INTCONST DBRACK DeclVar . SEMI ListaDeclVar
+
+    SEMI  deslocar, e ir ao estado 158
+
+
+Estado 155
+
+   16 ListaParametrosCont: Tipo ID EBRACK DBRACK VIRGULA ListaParametrosCont .
+
+    $padrão  reduzir usando a regra 16 (ListaParametrosCont)
+
+
+Estado 156
+
+   33 Comando: SE EPAREN Expr DPAREN ENTAO Comando .
+   34        | SE EPAREN Expr DPAREN ENTAO Comando . SENAO Comando
+
+    SENAO  deslocar, e ir ao estado 159
+
+    SENAO     [reduzir usando a regra 33 (Comando)]
+    $padrão  reduzir usando a regra 33 (Comando)
+
+
+Estado 157
+
+   35 Comando: ENQUANTO EPAREN Expr DPAREN EXECUTE Comando .
+
+    $padrão  reduzir usando a regra 35 (Comando)
+
+
+Estado 158
+
+   21 ListaDeclVar: Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI . ListaDeclVar
+
+    DECLARACAO_INT  deslocar, e ir ao estado 1
+    DECLARACAO_CAR  deslocar, e ir ao estado 2
+
+    $padrão  reduzir usando a regra 19 (ListaDeclVar)
+
+    ListaDeclVar  ir ao estado 160
+    Tipo          ir ao estado 18
+
+
+Estado 159
+
+   34 Comando: SE EPAREN Expr DPAREN ENTAO Comando SENAO . Comando
+
+    RETORNE    deslocar, e ir ao estado 26
+    LEIA       deslocar, e ir ao estado 27
+    ESCREVA    deslocar, e ir ao estado 28
+    NOVALINHA  deslocar, e ir ao estado 29
+    SE         deslocar, e ir ao estado 30
+    ENQUANTO   deslocar, e ir ao estado 31
+    MENOS      deslocar, e ir ao estado 32
+    ANULEXPR   deslocar, e ir ao estado 33
+    EPAREN     deslocar, e ir ao estado 34
+    EBRACE     deslocar, e ir ao estado 10
+    SEMI       deslocar, e ir ao estado 36
+    ID         deslocar, e ir ao estado 37
+    INTCONST   deslocar, e ir ao estado 38
+    CARCONST   deslocar, e ir ao estado 39
+
+    Bloco       ir ao estado 40
+    Comando     ir ao estado 161
+    Expr        ir ao estado 43
+    AssignExpr  ir ao estado 44
+    CondExpr    ir ao estado 45
+    OrExpr      ir ao estado 46
+    AndExpr     ir ao estado 47
+    EqExpr      ir ao estado 48
+    DesigExpr   ir ao estado 49
+    AddExpr     ir ao estado 50
+    MulExpr     ir ao estado 51
+    UnExpr      ir ao estado 52
+    LValueExpr  ir ao estado 53
+    PrimExpr    ir ao estado 54
+
+
+Estado 160
+
+   21 ListaDeclVar: Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar .
+
+    $padrão  reduzir usando a regra 21 (ListaDeclVar)
+
+
+Estado 161
+
+   34 Comando: SE EPAREN Expr DPAREN ENTAO Comando SENAO Comando .
+
+    $padrão  reduzir usando a regra 34 (Comando)

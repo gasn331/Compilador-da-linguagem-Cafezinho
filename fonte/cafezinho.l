@@ -1,6 +1,6 @@
 %{
-	#include <stdio.h>
 	#include "type.h"
+	#include <stdio.h>
 	#include "cafezinho.tab.h"
 	void yyerror();
 	void print(char *token_type);
@@ -60,10 +60,10 @@ STRING		\"([^"]*)\"
 ","      		{ return (VIRGULA); 	}
 "="      		{ return (ATRIB); 	}
 
-{ID}         		{ yylval.string = atoi(yytext); return (ID); 		}
+{ID}         		{ yylval.string = yytext; return (ID); 		}
 {INTCONST}   		{ yylval.string = atoi(yytext);return (INTCONST); 	}
-{CARCONST}    		{ yylval.string = atoi(yytext);return (CARCONST); 	}
-{STRING}     		{ yylval.string = atoi(yytext);return (STRING);	}
+{CARCONST}    		{ yylval.string = yytext;return (CARCONST); 	}
+{STRING}     		{ yylval.string = yytext;return (STRING);	}
 
 "\n"		   { yylineno++; }
 [ \t\r\f]+

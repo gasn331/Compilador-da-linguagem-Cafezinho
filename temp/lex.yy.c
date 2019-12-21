@@ -620,8 +620,8 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "./fonte/cafezinho.l"
 #line 2 "./fonte/cafezinho.l"
-	#include <stdio.h>
 	#include "type.h"
+	#include <stdio.h>
 	#include "cafezinho.tab.h"
 	void yyerror();
 	void print(char *token_type);
@@ -1093,7 +1093,7 @@ YY_RULE_SETUP
 case 38:
 YY_RULE_SETUP
 #line 63 "./fonte/cafezinho.l"
-{ yylval.string = atoi(yytext); return (ID); 		}
+{ yylval.string = yytext; return (ID); 		}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
@@ -1103,13 +1103,13 @@ YY_RULE_SETUP
 case 40:
 YY_RULE_SETUP
 #line 65 "./fonte/cafezinho.l"
-{ yylval.string = atoi(yytext);return (CARCONST); 	}
+{ yylval.string = yytext;return (CARCONST); 	}
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
 #line 66 "./fonte/cafezinho.l"
-{ yylval.string = atoi(yytext);return (STRING);	}
+{ yylval.string = yytext;return (STRING);	}
 	YY_BREAK
 case 42:
 /* rule 42 can match eol */
