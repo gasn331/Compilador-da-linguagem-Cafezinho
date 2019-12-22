@@ -94,7 +94,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 21 "./fonte/cafezinho.y" /* yacc.c:1909  */
+#line 32 "./fonte/cafezinho.y" /* yacc.c:1909  */
 
         int lineno;
         char *string;

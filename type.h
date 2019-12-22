@@ -6,7 +6,7 @@ typedef enum{programa,DeclFuncVar1,DeclFuncVar2,DeclFuncVar3,DeclFunc,ListaParam
 ListaParametrosCont4,Bloco1,ListaDeclVar2,ListaDeclVar3,Tipo,ListaComando2,Retorne,Leia,Escreva,
 EscrevaString,Novalinha,Se,SeSenao,Enquanto,Atribuir,SeTernario,Or,And,IgualIgual,Diferente,Menor,
 Maior,MenorIg,MaiorIg,Mais,Menos,Vezes,Divisao,Resto,Negativo,Negacao,IdentificadorBEB,Identificador,
-IdentificadorLista,Carconst,Intconst,Virgula}Operator;
+IdentificadorLista,Carconst,Intconst,Virgula,Main}Operator;
 
 //definicao de um no da arvore de sintaxe abstrata
 typedef struct node{ 
@@ -29,7 +29,7 @@ typedef struct symbolTable{
 typedef struct symbolTree{
     char* scope;
     int nChild;
-    struct symbolTree *childs;
+    struct symbolTree **childs;
     struct symbolTable *table;
 }symbolTree;
 
