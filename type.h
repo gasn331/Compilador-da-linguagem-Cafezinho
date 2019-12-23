@@ -39,13 +39,3 @@ typedef struct symbolTree{
     struct symbolTree **childs;
     struct symbolTable **table;
 }symbolTree;
-
-/*symbolTable Operations
-symbolTable *initTable(char *token, int line, char *type, node *astPointer);
-void insertSymbol(symbolTable *table, char *token, int line, char *type, node *astPointer);
-int searchSymbol(symbolTable *table, char *token);
-//symbolTree operations
-symbolTree *createScope(char *scope);
-symbolTree *searchScope(symbolTree *tree, char *scope);
-void insertOnScope(symbolTree *tree,char *scope,char *token, int line, char *type, node *astPointer);
-*/

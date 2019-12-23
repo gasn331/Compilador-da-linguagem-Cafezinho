@@ -198,9 +198,9 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-     // printtree(tree);
+      //printtree(tree);
       fflush(stdin);
-      printf("\n");
+      //printf("\n");
       scopeTree = createScope("programa",NULL,tree);
       createScopeTree(tree, "programa", scopeTree, "NOTYPE");
       propagarType(scopeTree);      
@@ -208,7 +208,7 @@ main(){
       //printScopeTree(scopeTree);
       checkReturn(scopeTree);
       BuscaChamadas(scopeTree, scopeTree);
-      printf("\n");     
+      //printf("\n");     
 }
 
 node *mknode(Operator type, int line, node *first, node *second, node *third, char *token){
@@ -936,8 +936,8 @@ void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree){
                   PercorreSubArvore(tree->table[i]->astPointer,Vars);
                   symbolTree *acScope = (symbolTree *)malloc(sizeof(symbolTree));
                   symbolTree *auxNode = (symbolTree *)malloc(sizeof(symbolTree));
-                  acScope = searchScope(unalteredTree,tree->table[i]->token);
-                  //if(acScope == NULL) printf("ESCOPO NULO\n"); 
+                  acScope = searchScope(unalteredTree,tree->table[i]->token); 
+                  if(acScope == NULL) return;
                   if(acScope->nParams != Vars->t_size){
                         printf("ERRO SEMANTICO: QUANTIDADE DE PARAMETROS INCORRETA, ESPERA-SE %d, FOI PASSADO %d NA LINHA %d\n", acScope->nParams,Vars->t_size, tree->table[i]->line);
                         exit(1);
