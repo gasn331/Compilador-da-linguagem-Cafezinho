@@ -96,12 +96,16 @@
       void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol);
       void getReturnNode(node *tree, char *funcReturn);
       void checkReturn(symbolTree *tree);
+      void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree);
+      void PercorreSubArvore(node *tree, param *Vars);
+      symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token);
       symbolTree *scopeTree;
       node *tree;
+      char StringAux[100];
       char escopo[100] = "global";
 	yydebug=1;
 
-#line 105 "cafezinho.tab.c" /* yacc.c:339  */
+#line 109 "cafezinho.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -185,13 +189,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "./fonte/cafezinho.y" /* yacc.c:355  */
+#line 44 "./fonte/cafezinho.y" /* yacc.c:355  */
 
         int lineno;
         char *string;
         node* node_type;
 
-#line 195 "cafezinho.tab.c" /* yacc.c:355  */
+#line 199 "cafezinho.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -208,7 +212,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 212 "cafezinho.tab.c" /* yacc.c:358  */
+#line 216 "cafezinho.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -509,14 +513,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    61,    61,    64,    65,    66,    67,    71,    74,    75,
-      76,    79,    82,    83,    86,    87,    88,    89,    92,    93,
-      96,    97,    98,   101,   102,   105,   106,   110,   111,   112,
-     113,   114,   115,   116,   117,   118,   119,   120,   123,   125,
-     126,   129,   130,   134,   135,   138,   139,   142,   143,   144,
-     147,   148,   149,   150,   151,   154,   155,   156,   159,   160,
-     161,   162,   165,   166,   167,   170,   171,   174,   175,   176,
-     177,   178,   179,   180,   183,   184
+       0,    65,    65,    68,    69,    70,    71,    75,    78,    79,
+      80,    83,    86,    87,    90,    91,    92,    93,    96,    97,
+     100,   101,   102,   105,   106,   109,   110,   114,   115,   116,
+     117,   118,   119,   120,   121,   122,   123,   124,   127,   129,
+     130,   133,   134,   138,   139,   142,   143,   146,   147,   148,
+     151,   152,   153,   154,   155,   158,   159,   160,   163,   164,
+     165,   166,   169,   170,   171,   174,   175,   178,   179,   180,
+     181,   182,   183,   184,   187,   188
 };
 #endif
 
@@ -1398,451 +1402,451 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 61 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 65 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {tree = mknode(programa,yylineno,(yyvsp[-1].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1404 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1408 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 64 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 68 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclFuncVar1,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-3].string)));}
-#line 1410 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1414 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 65 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 69 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclFuncVar2,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-6].string)));}
-#line 1416 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1420 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 66 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 70 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclFuncVar3,yylineno,(yyvsp[-3].node_type),(yyvsp[-1].node_type),(yyvsp[0].node_type),newName((yyvsp[-2].string)));}
-#line 1422 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1426 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 67 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 71 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1428 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1432 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 71 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 75 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Main,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1434 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1438 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 74 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 78 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclVar1,yylineno,(yyvsp[0].node_type),NULL,NULL,newName((yyvsp[-1].string)));}
-#line 1440 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1444 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 75 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 79 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclVar2,yylineno,(yyvsp[0].node_type),NULL,NULL,newName((yyvsp[-4].string)));}
-#line 1446 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1450 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 76 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 80 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1452 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1456 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 79 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 83 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclFunc,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,newName(yyval.string));}
-#line 1458 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1462 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 82 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 86 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1464 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1468 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 83 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 87 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaParametros2,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1470 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1474 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 86 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 90 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaParametrosCont1,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName((yyvsp[0].string)));}
-#line 1476 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1480 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 87 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 91 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaParametrosCont2,yylineno,(yyvsp[-3].node_type),NULL,NULL,newName((yyvsp[-2].string)));}
-#line 1482 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1486 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 88 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 92 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaParametrosCont3,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,newName((yyvsp[-2].string)));}
-#line 1488 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1492 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 89 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 93 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaParametrosCont4,yylineno,(yyvsp[-5].node_type),(yyvsp[0].node_type),NULL,newName((yyvsp[-4].string)));}
-#line 1494 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1498 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 92 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 96 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Bloco1,yylineno,(yyvsp[-2].node_type),(yyvsp[-1].node_type),NULL,NULL);}
-#line 1500 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1504 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 93 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 97 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1506 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1510 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 96 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 100 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1512 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1516 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 97 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 101 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaDeclVar2,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-3].string)));}
-#line 1518 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1522 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 98 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 102 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaDeclVar3,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-6].string)));}
-#line 1524 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1528 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 101 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 105 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Tipo,yylineno,NULL,NULL,NULL,"int");}
-#line 1530 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1534 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 102 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 106 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Tipo,yylineno,NULL,NULL,NULL,"car");}
-#line 1536 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1540 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 105 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 109 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1542 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1546 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 106 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 110 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaComando2,yylineno,(yyvsp[-1].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1548 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1552 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 110 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 114 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1554 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1558 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 111 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 115 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1560 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1564 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 112 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 116 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Retorne,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1566 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1570 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 113 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 117 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Leia,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1572 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1576 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 114 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 118 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Escreva,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1578 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1582 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 115 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 119 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(EscrevaString,yylineno,NULL,NULL,NULL,NULL);}
-#line 1584 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1588 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 116 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 120 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Novalinha,yylineno,NULL,NULL,NULL,NULL);}
-#line 1590 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1594 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 117 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 121 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Se,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1596 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1600 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 118 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 122 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(SeSenao,yylineno,(yyvsp[-5].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1602 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1606 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 119 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 123 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Enquanto,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1608 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1612 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 120 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 124 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1614 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1618 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 123 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 127 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1620 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1624 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 125 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 129 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1626 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1630 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 126 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 130 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Atribuir,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1632 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1636 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 129 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 133 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1638 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1642 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 130 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 134 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(SeTernario,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1644 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1648 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 134 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 138 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Or,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1650 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1654 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 135 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 139 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1656 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1660 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 138 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 142 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(And,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1662 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1666 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 139 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 143 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1668 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1672 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 142 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 146 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IgualIgual,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1674 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1678 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 143 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 147 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Diferente,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1680 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1684 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 144 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 148 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1686 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1690 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 147 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 151 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Menor,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1692 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1696 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 148 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 152 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Maior,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1698 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1702 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 149 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 153 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(MenorIg,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1704 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1708 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 150 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 154 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(MaiorIg,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1710 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1714 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 151 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 155 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1716 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1720 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 154 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 158 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Mais,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1722 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1726 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 155 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 159 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Menos,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1728 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1732 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 156 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 160 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1734 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1738 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 159 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 163 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Vezes,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1740 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1744 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 160 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 164 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Divisao,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1746 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1750 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 161 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 165 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Resto,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1752 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1756 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 162 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 166 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1758 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1762 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 165 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 169 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Negativo,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1764 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1768 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 166 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 170 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Negacao,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1770 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1774 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 167 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 171 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1776 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1780 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 170 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 174 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorBEB,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1782 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1786 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 171 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 175 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1788 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1792 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 174 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 178 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorLista,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1794 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1798 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 175 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 179 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1800 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1804 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 176 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 180 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorBEB,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1806 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1810 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 177 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 181 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1812 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1816 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 178 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 182 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Carconst,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1818 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1822 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 179 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 183 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Intconst,yylineno,NULL,NULL,NULL,convert2Str(yyval.string));}
-#line 1824 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1828 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 180 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 184 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1830 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1834 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 183 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 187 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1836 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1840 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 184 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 188 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Virgula, yylineno,(yyvsp[-2].node_type), (yyvsp[0].node_type), NULL, NULL);}
-#line 1842 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1846 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1846 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1850 "cafezinho.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2070,7 +2074,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 186 "./fonte/cafezinho.y" /* yacc.c:1906  */
+#line 190 "./fonte/cafezinho.y" /* yacc.c:1906  */
 
 
 yywrap(){
@@ -2082,15 +2086,16 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-      printtree(tree);
+     // printtree(tree);
       fflush(stdin);
-      //printf("\n");
+      printf("\n");
       scopeTree = createScope("programa",NULL,tree);
       createScopeTree(tree, "programa", scopeTree, "NOTYPE");
       propagarType(scopeTree);      
       procurarDeclaracoes(scopeTree); 
       //printScopeTree(scopeTree);
       checkReturn(scopeTree);
+      BuscaChamadas(scopeTree, scopeTree);
       printf("\n");     
 }
 
@@ -2291,11 +2296,14 @@ void printScopeTree(symbolTree *tree){
             printf("ERROR: SymbolTree NULL\n");
             return;
       }
+      int i;
       printf("ESCOPO %s NumChild %d; Tipo: %s ;Tabela:", tree->scope, tree->nChild, tree->type);
       printTable(tree->table,tree->nTable);
-      //printTable(tree->table,tree->nTable);
+      printf("numParams: %d; ", tree->nParams);
+      for(i = 1; i <= tree->nParams;i++){
+            printf("%s;", tree->params[i]);
+      }
       if(!tree->nChild) return;
-      int i;
       printf("(");
       for(i = 0; i < tree->nChild; i++) printScopeTree(tree->childs[i]);
       printf(")");
@@ -2409,7 +2417,7 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                         //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
                   }
                   else{
-                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line);
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line-1);
                         exit(1);    
                   }
                   break;
@@ -2420,6 +2428,29 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                   tipoAtual = tree->first->token;
                   if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
                         novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        int i,j;
+                        int pos=0;
+                        for(i = 0; i < strlen(novoNode->token); i++){
+                              if(!isalnum(novoNode->token[i])){
+                                    pos = i;
+                                    break;
+                              }
+                        }
+                        if(pos){
+                              //printf("ENTEI");
+                              strcpy(StringAux,novoNode->type);
+                              strcpy(StringAux,alphaNum(StringAux));
+                              if(novoNode->token[pos] == '['){
+                                    strcat(StringAux,"[]");
+                                    //printf("%s\n",symbol->type);
+                                    strcpy(novoNode->type,StringAux);
+                              }
+                        }
+                        strcpy(novoNode->token, alphaNum(novoNode->token));      
+                        noAtual->nParams++;
+                        noAtual->params[noAtual->nParams] = (char *)malloc(sizeof(char)*(strlen(novoNode->type)+1));
+                        strcpy(noAtual->params[noAtual->nParams],novoNode->type);
+                        
                         noAtual->nTable++;
                         noAtual->table[noAtual->nTable] = novoNode;
                         //("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
@@ -2443,7 +2474,7 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                   }
                   break;
             case IdentificadorLista:
-            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"()")==NULL){
+            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"func()")==NULL){
                   novoNode = createSymbolNode(tree->token,tree->line,"()",tree,0);
                   noAtual->nTable++;
                   noAtual->table[noAtual->nTable] = novoNode;
@@ -2536,6 +2567,8 @@ symbolTree *createScope(char *scope, char *type, node *astPointer){
       newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
       strcpy(newnode->type,type);
     }
+    newnode->nParams = 0;
+    newnode->params = (char **)malloc(sizeof(char *)*2);
     newnode->astPointer = astPointer;
     //printf("scope after %s", newnode->scope);
     return newnode;
@@ -2562,14 +2595,12 @@ symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *typ
 }
 
 symbolTree *searchScope(symbolTree *tree, char *scope){
-      if(tree == NULL) return NULL;
-      if(strcmp(tree->scope,scope) == 0) return tree;
-      if(tree->nChild == 0) return NULL;
+      if(tree == NULL){ return NULL;}
+      if(strcmp(tree->scope,scope) == 0) {return tree;}
+      if(tree->nChild == 0) {return NULL;}
       int i;
-      symbolTree *retorn;
       for(i = 0; i < tree->nChild; i++) 
-            retorn = searchScope(tree->childs[i],scope);
-      return retorn;
+            return searchScope(tree->childs[i],scope);
 }
 
 void propagarType(symbolTree *tree){
@@ -2582,7 +2613,6 @@ void propagarType(symbolTree *tree){
             propagarType(tree->childs[i]);
       }
 }
-char StringAux[100];
 void assignTypes(symbolTree *tree, symbolTable *symbol){
       if(tree == NULL) return;
       /* casos: []
@@ -2605,12 +2635,12 @@ void assignTypes(symbolTree *tree, symbolTable *symbol){
                   strcat(StringAux,"[]");
                   //printf("%s\n",symbol->type);
                   strcpy(symbol->type,StringAux);
-            }
+            }/*
             else if(symbol->token[pos] == '('){
                   strcat(StringAux,"()");
                   //printf("%s\n",symbol->type);
                   strcpy(symbol->type,StringAux);
-            }
+            }*/
       }
       for(i = 1; i <= tree->nTable;i++){
             if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
@@ -2721,4 +2751,120 @@ void checkReturn(symbolTree *tree){
             checkReturn(tree->childs[i]);
       }
 
+}
+
+void PercorreSubArvore(node *tree, param *Vars){
+      if(tree == NULL) return;
+      int bb = 0; 
+      switch(tree->type){
+            case Mais:
+            case Menos:
+            case Vezes:
+            case Divisao:
+            case Resto:
+            case Negativo:
+                  bb = 1;
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Intconst");
+                  break;
+            case Intconst:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Intconst");
+                  break;
+            case Carconst:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Carconst");
+                  break;
+            case Identificador:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(tree->token)+1));
+                  strcpy(Vars->variables[Vars->t_size],tree->token);
+                  break;
+      }
+      if(!bb) PercorreSubArvore(tree->first,Vars);
+      if(!bb) PercorreSubArvore(tree->second,Vars);
+      if(!bb) PercorreSubArvore(tree->third,Vars);
+}
+/*void checaParams(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            BuscaChamadas(tree);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            checaParams(tree->childs[i]);
+      }
+}*/
+symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token){
+      if(tree == NULL) return NULL;
+      symbolTree *node = (symbolTree *)malloc(sizeof(symbolTree));
+      node = searchScope(tree,scope);
+      int i;
+      printf("SCOPE %s %s\n", node->scope, scope);
+      for(i = 1; i <= tree->nTable; i++){
+            if(strcmp(node->table[i]->token,token)==0)
+                  return node->table[i];
+      }
+}
+void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree){
+      if(tree == NULL) return;
+      int i,j;
+      
+      for(i = 1; i <= tree->nTable;i++){
+            //printf("TOK: %s TYPE: %s\n", tree->table[i]->token, tree->table[i]->type);
+            if(strcmp(tree->table[i]->type,"()")==0){
+                  //printf("Entrei aqui\n");
+                  param *Vars = (param *)malloc(sizeof(param));
+                  Vars->t_size = 0;
+                  Vars->variables = (char **)malloc(sizeof(char *)*2);
+                  Vars->variables[0] = (char *)malloc(sizeof(char));     
+                  PercorreSubArvore(tree->table[i]->astPointer,Vars);
+                  symbolTree *acScope = (symbolTree *)malloc(sizeof(symbolTree));
+                  symbolTree *auxNode = (symbolTree *)malloc(sizeof(symbolTree));
+                  acScope = searchScope(unalteredTree,tree->table[i]->token);
+                  //if(acScope == NULL) printf("ESCOPO NULO\n"); 
+                  if(acScope->nParams != Vars->t_size){
+                        printf("ERRO SEMANTICO: QUANTIDADE DE PARAMETROS INCORRETA, ESPERA-SE %d, FOI PASSADO %d NA LINHA %d\n", acScope->nParams,Vars->t_size, tree->table[i]->line);
+                        exit(1);
+                  }
+                  int k;
+                  //printf("Size: %d\n", Vars->t_size);
+                  for(j = 1; j <= Vars->t_size;j++){
+                        strcpy(StringAux,Vars->variables[j]);
+                        for(k = 1; k <= tree->nTable;k++){
+                              if(strcmp(tree->table[k]->token,Vars->variables[j])==0)
+                                    strcpy(StringAux,tree->table[k]->type);
+                        }
+                        //printf("VARS %s\n", StringAux);
+                        //printf("TOK::: %s :::: %s\n", StringAux, acScope->params[j]);
+                        if(strcmp(acScope->params[j],StringAux) != 0){
+                              if(strcmp(acScope->params[j], "car")==0 && strcmp(StringAux,"Carconst") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                              else if(strcmp(acScope->params[j], "int")==0 && strcmp(StringAux,"Intconst") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              
+                              }
+                              else if(strcmp(acScope->params[j], "car[]")==0 && strcmp(StringAux,"car[]") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                              else if(strcmp(acScope->params[j], "int[]")==0 && strcmp(StringAux,"int[]") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                        }
+                        
+                  }
+                  printf("\n");
+            }
+      }
+      for(i = 0; i < tree->nChild; i++){
+            BuscaChamadas(tree->childs[i], unalteredTree);
+      }
 }

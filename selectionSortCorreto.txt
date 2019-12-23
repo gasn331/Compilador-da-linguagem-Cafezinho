@@ -30,7 +30,7 @@ programa{
 	leia vet[i];
 	i=i+1;
    } 
-   selectionSort(vet, 10);
+   selectionSort(vet-1,1+10,vat,vut,12);
    escreva "Vetor ordenado: ";
    novalinha;
    i=0;

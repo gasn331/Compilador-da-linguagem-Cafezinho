@@ -8,6 +8,10 @@ EscrevaString,Novalinha,Se,SeSenao,Enquanto,Atribuir,SeTernario,Or,And,IgualIgua
 Maior,MenorIg,MaiorIg,Mais,Menos,Vezes,Divisao,Resto,Negativo,Negacao,IdentificadorBEB,Identificador,
 IdentificadorLista,Carconst,Intconst,Virgula,Main,DeclVar1,DeclVar2,ListaParametrosCont1,ListaParametrosCont2,ListaParametros2}Operator;
 
+typedef struct param{
+    int t_size;
+    char **variables;
+}param;
 //definicao de um no da arvore de sintaxe abstrata
 typedef struct node{ 
         Operator type;
@@ -29,7 +33,8 @@ typedef struct symbolTable{
 typedef struct symbolTree{
     char* scope;
     char*type;
-    int nChild, nTable;
+    char **params;
+    int nChild, nTable,nParams;
     node *astPointer;
     struct symbolTree **childs;
     struct symbolTable **table;

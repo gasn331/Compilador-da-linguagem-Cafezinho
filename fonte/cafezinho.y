@@ -31,8 +31,12 @@
       void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol);
       void getReturnNode(node *tree, char *funcReturn);
       void checkReturn(symbolTree *tree);
+      void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree);
+      void PercorreSubArvore(node *tree, param *Vars);
+      symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token);
       symbolTree *scopeTree;
       node *tree;
+      char StringAux[100];
       char escopo[100] = "global";
 	yydebug=1;
 %}
@@ -194,15 +198,16 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-      printtree(tree);
+     // printtree(tree);
       fflush(stdin);
-      //printf("\n");
+      printf("\n");
       scopeTree = createScope("programa",NULL,tree);
       createScopeTree(tree, "programa", scopeTree, "NOTYPE");
       propagarType(scopeTree);      
       procurarDeclaracoes(scopeTree); 
       //printScopeTree(scopeTree);
       checkReturn(scopeTree);
+      BuscaChamadas(scopeTree, scopeTree);
       printf("\n");     
 }
 
@@ -403,11 +408,14 @@ void printScopeTree(symbolTree *tree){
             printf("ERROR: SymbolTree NULL\n");
             return;
       }
+      int i;
       printf("ESCOPO %s NumChild %d; Tipo: %s ;Tabela:", tree->scope, tree->nChild, tree->type);
       printTable(tree->table,tree->nTable);
-      //printTable(tree->table,tree->nTable);
+      printf("numParams: %d; ", tree->nParams);
+      for(i = 1; i <= tree->nParams;i++){
+            printf("%s;", tree->params[i]);
+      }
       if(!tree->nChild) return;
-      int i;
       printf("(");
       for(i = 0; i < tree->nChild; i++) printScopeTree(tree->childs[i]);
       printf(")");
@@ -521,7 +529,7 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                         //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
                   }
                   else{
-                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line);
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line-1);
                         exit(1);    
                   }
                   break;
@@ -532,6 +540,29 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                   tipoAtual = tree->first->token;
                   if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
                         novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        int i,j;
+                        int pos=0;
+                        for(i = 0; i < strlen(novoNode->token); i++){
+                              if(!isalnum(novoNode->token[i])){
+                                    pos = i;
+                                    break;
+                              }
+                        }
+                        if(pos){
+                              //printf("ENTEI");
+                              strcpy(StringAux,novoNode->type);
+                              strcpy(StringAux,alphaNum(StringAux));
+                              if(novoNode->token[pos] == '['){
+                                    strcat(StringAux,"[]");
+                                    //printf("%s\n",symbol->type);
+                                    strcpy(novoNode->type,StringAux);
+                              }
+                        }
+                        strcpy(novoNode->token, alphaNum(novoNode->token));      
+                        noAtual->nParams++;
+                        noAtual->params[noAtual->nParams] = (char *)malloc(sizeof(char)*(strlen(novoNode->type)+1));
+                        strcpy(noAtual->params[noAtual->nParams],novoNode->type);
+                        
                         noAtual->nTable++;
                         noAtual->table[noAtual->nTable] = novoNode;
                         //("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
@@ -555,7 +586,7 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
                   }
                   break;
             case IdentificadorLista:
-            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"()")==NULL){
+            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"func()")==NULL){
                   novoNode = createSymbolNode(tree->token,tree->line,"()",tree,0);
                   noAtual->nTable++;
                   noAtual->table[noAtual->nTable] = novoNode;
@@ -648,6 +679,8 @@ symbolTree *createScope(char *scope, char *type, node *astPointer){
       newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
       strcpy(newnode->type,type);
     }
+    newnode->nParams = 0;
+    newnode->params = (char **)malloc(sizeof(char *)*2);
     newnode->astPointer = astPointer;
     //printf("scope after %s", newnode->scope);
     return newnode;
@@ -674,14 +707,12 @@ symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *typ
 }
 
 symbolTree *searchScope(symbolTree *tree, char *scope){
-      if(tree == NULL) return NULL;
-      if(strcmp(tree->scope,scope) == 0) return tree;
-      if(tree->nChild == 0) return NULL;
+      if(tree == NULL){ return NULL;}
+      if(strcmp(tree->scope,scope) == 0) {return tree;}
+      if(tree->nChild == 0) {return NULL;}
       int i;
-      symbolTree *retorn;
       for(i = 0; i < tree->nChild; i++) 
-            retorn = searchScope(tree->childs[i],scope);
-      return retorn;
+            return searchScope(tree->childs[i],scope);
 }
 
 void propagarType(symbolTree *tree){
@@ -694,7 +725,6 @@ void propagarType(symbolTree *tree){
             propagarType(tree->childs[i]);
       }
 }
-char StringAux[100];
 void assignTypes(symbolTree *tree, symbolTable *symbol){
       if(tree == NULL) return;
       /* casos: []
@@ -717,12 +747,12 @@ void assignTypes(symbolTree *tree, symbolTable *symbol){
                   strcat(StringAux,"[]");
                   //printf("%s\n",symbol->type);
                   strcpy(symbol->type,StringAux);
-            }
+            }/*
             else if(symbol->token[pos] == '('){
                   strcat(StringAux,"()");
                   //printf("%s\n",symbol->type);
                   strcpy(symbol->type,StringAux);
-            }
+            }*/
       }
       for(i = 1; i <= tree->nTable;i++){
             if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
@@ -833,4 +863,120 @@ void checkReturn(symbolTree *tree){
             checkReturn(tree->childs[i]);
       }
 
+}
+
+void PercorreSubArvore(node *tree, param *Vars){
+      if(tree == NULL) return;
+      int bb = 0; 
+      switch(tree->type){
+            case Mais:
+            case Menos:
+            case Vezes:
+            case Divisao:
+            case Resto:
+            case Negativo:
+                  bb = 1;
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Intconst");
+                  break;
+            case Intconst:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Intconst");
+                  break;
+            case Carconst:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(enumStrings[(int)tree->type]+1)));
+                  strcpy(Vars->variables[Vars->t_size],"Carconst");
+                  break;
+            case Identificador:
+                  Vars->t_size++;
+                  Vars->variables[Vars->t_size] = (char *)malloc(sizeof(char)*(strlen(tree->token)+1));
+                  strcpy(Vars->variables[Vars->t_size],tree->token);
+                  break;
+      }
+      if(!bb) PercorreSubArvore(tree->first,Vars);
+      if(!bb) PercorreSubArvore(tree->second,Vars);
+      if(!bb) PercorreSubArvore(tree->third,Vars);
+}
+/*void checaParams(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            BuscaChamadas(tree);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            checaParams(tree->childs[i]);
+      }
+}*/
+symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token){
+      if(tree == NULL) return NULL;
+      symbolTree *node = (symbolTree *)malloc(sizeof(symbolTree));
+      node = searchScope(tree,scope);
+      int i;
+      printf("SCOPE %s %s\n", node->scope, scope);
+      for(i = 1; i <= tree->nTable; i++){
+            if(strcmp(node->table[i]->token,token)==0)
+                  return node->table[i];
+      }
+}
+void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree){
+      if(tree == NULL) return;
+      int i,j;
+      
+      for(i = 1; i <= tree->nTable;i++){
+            //printf("TOK: %s TYPE: %s\n", tree->table[i]->token, tree->table[i]->type);
+            if(strcmp(tree->table[i]->type,"()")==0){
+                  //printf("Entrei aqui\n");
+                  param *Vars = (param *)malloc(sizeof(param));
+                  Vars->t_size = 0;
+                  Vars->variables = (char **)malloc(sizeof(char *)*2);
+                  Vars->variables[0] = (char *)malloc(sizeof(char));     
+                  PercorreSubArvore(tree->table[i]->astPointer,Vars);
+                  symbolTree *acScope = (symbolTree *)malloc(sizeof(symbolTree));
+                  symbolTree *auxNode = (symbolTree *)malloc(sizeof(symbolTree));
+                  acScope = searchScope(unalteredTree,tree->table[i]->token);
+                  //if(acScope == NULL) printf("ESCOPO NULO\n"); 
+                  if(acScope->nParams != Vars->t_size){
+                        printf("ERRO SEMANTICO: QUANTIDADE DE PARAMETROS INCORRETA, ESPERA-SE %d, FOI PASSADO %d NA LINHA %d\n", acScope->nParams,Vars->t_size, tree->table[i]->line);
+                        exit(1);
+                  }
+                  int k;
+                  //printf("Size: %d\n", Vars->t_size);
+                  for(j = 1; j <= Vars->t_size;j++){
+                        strcpy(StringAux,Vars->variables[j]);
+                        for(k = 1; k <= tree->nTable;k++){
+                              if(strcmp(tree->table[k]->token,Vars->variables[j])==0)
+                                    strcpy(StringAux,tree->table[k]->type);
+                        }
+                        //printf("VARS %s\n", StringAux);
+                        //printf("TOK::: %s :::: %s\n", StringAux, acScope->params[j]);
+                        if(strcmp(acScope->params[j],StringAux) != 0){
+                              if(strcmp(acScope->params[j], "car")==0 && strcmp(StringAux,"Carconst") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                              else if(strcmp(acScope->params[j], "int")==0 && strcmp(StringAux,"Intconst") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              
+                              }
+                              else if(strcmp(acScope->params[j], "car[]")==0 && strcmp(StringAux,"car[]") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                              else if(strcmp(acScope->params[j], "int[]")==0 && strcmp(StringAux,"int[]") !=0){
+                                    printf("ERRO SEMANTICO: TIPO DE PARAMETRO INCORRETO NA LINHA %d\n", tree->table[i]->line);
+                                    exit(1); 
+                              }
+                        }
+                        
+                  }
+                  printf("\n");
+            }
+      }
+      for(i = 0; i < tree->nChild; i++){
+            BuscaChamadas(tree->childs[i], unalteredTree);
+      }
 }
