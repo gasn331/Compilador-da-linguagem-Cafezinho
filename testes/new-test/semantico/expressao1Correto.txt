@@ -1,6 +1,8 @@
 /*Programa correto*/
 programa{
-int x,y,z,v;
+int x,y,z,v,vet[2];
+car a,b,c;
+car str[3];
 z=y=x=50; 
 escreva x; escreva " "; escreva y; escreva " "; escreva z;
 novalinha;

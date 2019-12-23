@@ -7,22 +7,30 @@
 "ListaParametrosCont4","Bloco1","ListaDeclVar2","ListaDeclVar3","Tipo","ListaComando2","Retorne","Leia","Escreva",
 "EscrevaString","Novalinha","Se","SeSenao","Enquanto","Atribuir","SeTernario","Or","And","IgualIgual","Diferente","Menor",
 "Maior","MenorIg","MaiorIg","Mais","Menos","Vezes","Divisao","Resto","Negativo","Negacao","IdentificadorBEB","Identificador",
-"IdentificadorLista","Carconst","Intconst","Virgula","Main"};
+"IdentificadorLista","Carconst","Intconst","Virgula","Main","DeclVar1","DeclVar2","ListaParametrosCont1", "ListaParametrosCont2","ListaParametros2"};
       extern int yylineno;
+      char *alphaNum(char *token);
       node *mknode(Operator type, int line, node *first, node *second, node *third, char *token);
       void printtree(node *tree);
+      void printTable(symbolTable **table, int t_size);
       char *convert2Str(int x);
       void createSymbolTree(node *tree);
+      symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,int decl);
       char *newName(char *token);
-      void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual);
+      void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual, char tipoAtual[100]);
       void insertChild(symbolTree *tree, symbolTree *newNode);
-      symbolTable *initTable(char *token, int line, char *type, node *astPointer);
-      void insertSymbol(symbolTable *table, char *token, int line, char *type, node *astPointer);
-      int searchSymbol(symbolTable *table, char *token);
+      void insertSymbol(symbolTree *tree, symbolTable *newNode);
+      symbolTable *searchSymbol(symbolTable **table, int t_size, char *token, char *type);
       //symbolTree operations
-      symbolTree *createScope(char *scope);
+      symbolTree *createScope(char *scope, char *type, node *astPointer);
       symbolTree *searchScope(symbolTree *tree, char *scope);
       void insertOnScope(symbolTree *tree,char *scope,char *token, int line, char *type, node *astPointer);
+      void propagarType(symbolTree *tree);
+      void assignTypes(symbolTree *tree, symbolTable *symbol);
+      void procurarDeclaracoes(symbolTree *tree);
+      void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol);
+      void getReturnNode(node *tree, char *funcReturn);
+      void checkReturn(symbolTree *tree);
       symbolTree *scopeTree;
       node *tree;
       char escopo[100] = "global";
@@ -46,15 +54,16 @@
 %token MAIS MENOS VEZES DIV RESTO OUEXPR EEXPR ANULEXPR DBIGUAL DIFF
 %token MAIORQ MENORQ MAIORIGQ MENORIGQ INTERROG DOISPONT
 %token EPAREN DPAREN DBRACK EBRACK EBRACE DBRACE SEMI VIRGULA ATRIB
-%token ID INTCONST CARCONST STRING
+%token INTCONST CARCONST STRING
+%token <string> ID
 
 %%
 programa : DeclFuncVar DeclProg {tree = mknode(programa,yylineno,$1,$2,NULL,NULL);}
          ;
 
-DeclFuncVar : Tipo ID DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar1,yylineno,$1,$3,$5,NULL);}
-            | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar2,yylineno,$1,$6,$8,NULL);}
-            | Tipo ID DeclFunc DeclFuncVar {$$ = mknode(DeclFuncVar3,yylineno,$1,$3,$4,NULL);}
+DeclFuncVar : Tipo ID DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar1,yylineno,$1,$3,$5,newName($2));}
+            | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI DeclFuncVar {$$ = mknode(DeclFuncVar2,yylineno,$1,$6,$8,newName($2));}
+            | Tipo ID DeclFunc DeclFuncVar {$$ = mknode(DeclFuncVar3,yylineno,$1,$3,$4,newName($2));}
             | {$$ = NULL;}
             ;
 
@@ -62,8 +71,8 @@ DeclProg :
 	PROGRAMA Bloco {$$ = mknode(Main,yylineno,$2,NULL,NULL,NULL);}
          ;
 
-DeclVar : VIRGULA ID DeclVar {$$ = $3;}
-        | VIRGULA ID EBRACK INTCONST DBRACK DeclVar {$$ = $6;}
+DeclVar : VIRGULA ID DeclVar {$$ = mknode(DeclVar1,yylineno,$3,NULL,NULL,newName($2));}
+        | VIRGULA ID EBRACK INTCONST DBRACK DeclVar {$$ = mknode(DeclVar2,yylineno,$6,NULL,NULL,newName($2));}
         | {$$ = NULL;}
         ;
 
@@ -71,13 +80,13 @@ DeclFunc : EPAREN ListaParametros DPAREN Bloco {$$ = mknode(DeclFunc,yylineno,$2
          ;
 
 ListaParametros : {$$ = NULL;}
-                | ListaParametrosCont {$$ = $1;}
+                | ListaParametrosCont {$$ = mknode(ListaParametros2,yylineno,$1,NULL,NULL,NULL);}
                 ;
 
-ListaParametrosCont : Tipo ID {$$ = $1;}
-                    | Tipo ID EBRACK DBRACK {$$ = $1;}
-                    | Tipo ID VIRGULA ListaParametrosCont {$$ = mknode(ListaParametrosCont3,yylineno,$1,$4,NULL,NULL);}
-                    | Tipo ID EBRACK DBRACK VIRGULA ListaParametrosCont {$$ = mknode(ListaParametrosCont4,yylineno,$1,$6,NULL,NULL);}
+ListaParametrosCont : Tipo ID {$$ = mknode(ListaParametrosCont1,yylineno,$1,NULL,NULL,newName($2));}
+                    | Tipo ID EBRACK DBRACK {$$ = mknode(ListaParametrosCont2,yylineno,$1,NULL,NULL,newName($2));}
+                    | Tipo ID VIRGULA ListaParametrosCont {$$ = mknode(ListaParametrosCont3,yylineno,$1,$4,NULL,newName($2));}
+                    | Tipo ID EBRACK DBRACK VIRGULA ListaParametrosCont {$$ = mknode(ListaParametrosCont4,yylineno,$1,$6,NULL,newName($2));}
                     ;
 
 Bloco : EBRACE ListaDeclVar ListaComando DBRACE {$$ = mknode(Bloco1,yylineno,$2,$3,NULL,NULL);}
@@ -85,8 +94,8 @@ Bloco : EBRACE ListaDeclVar ListaComando DBRACE {$$ = mknode(Bloco1,yylineno,$2,
       ;
 
 ListaDeclVar : {$$ = NULL;}
-             | Tipo ID DeclVar SEMI ListaDeclVar {$$ = mknode(ListaDeclVar2,yylineno,$1,$3,$5,NULL);}
-             | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar {$$ = mknode(ListaDeclVar3,yylineno,$1,$6,$8,NULL);}
+             | Tipo ID DeclVar SEMI ListaDeclVar {$$ = mknode(ListaDeclVar2,yylineno,$1,$3,$5,newName($2));}
+             | Tipo ID EBRACK INTCONST DBRACK DeclVar SEMI ListaDeclVar {$$ = mknode(ListaDeclVar3,yylineno,$1,$6,$8,newName($2));}
              ;
 
 Tipo : DECLARACAO_INT {$$ = mknode(Tipo,yylineno,NULL,NULL,NULL,"int");}
@@ -185,10 +194,16 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-      //printtree(tree);
-      scopeTree = createScope("programa");
-      createScopeTree(tree, "programa", scopeTree);
-      printScopeTree(scopeTree);       
+      printtree(tree);
+      fflush(stdin);
+      //printf("\n");
+      scopeTree = createScope("programa",NULL,tree);
+      createScopeTree(tree, "programa", scopeTree, "NOTYPE");
+      propagarType(scopeTree);      
+      procurarDeclaracoes(scopeTree); 
+      //printScopeTree(scopeTree);
+      checkReturn(scopeTree);
+      printf("\n");     
 }
 
 node *mknode(Operator type, int line, node *first, node *second, node *third, char *token){
@@ -212,144 +227,160 @@ node *mknode(Operator type, int line, node *first, node *second, node *third, ch
         return newnode;
 }
 void printtree(node *tree) {
-        //printf("PRINTING TREE\n");
-        if(tree == NULL) return;
-        //switch 
-        printf("(");
-        switch(tree->type){
-            case Main:
-                  printf("PROGRAMA ");
-                  break;
-          case programa:
-                printf("programa %s", tree->token);
-                break;
-          case DeclFuncVar1:
-                printf("DeclFuncVar1 %s", tree->token);
-                break;
-          case DeclFuncVar2:
-                printf("DeclFuncVar2 %s", tree->token);
-                break;
-          case DeclFuncVar3:
-                printf("DeclFuncVar3 %s", tree->token);
-                break;
-          case DeclFunc:
-                printf("ListaParametrosCont3 %s", tree->token);
-                break;
-          case ListaParametrosCont4:
-                printf("ListaParametrosCont4 %s", tree->token);
-                break;
-          case Bloco1:
-                printf("Bloco1 %s", tree->token);
-                break;
-          case ListaDeclVar2:
-                printf("ListaDeclVar2 %s", tree->token);
-                break;
-          case ListaDeclVar3:
-                printf("ListaDeclVar3 %s", tree->token);
-                break;
-          case Tipo:
-                printf("Tipo %s ", tree->token);
-                break;
-          case ListaComando2:
-                printf("ListaComando2 ");
-                printf("DeclFunc %s", tree->token);
-                break;
-          case ListaParametrosCont3:
-                break;
-          case Retorne:
-                printf("Retorne ");
-                break;
-          case Leia:
-                printf("Leia ");
-                break;
-          case Escreva:
-                printf("Escreva ");
-                break;
-          case EscrevaString:
-                printf("EscrevaString %s ", tree->token);
-                break;
-          case Novalinha:
-                printf("Novalinha ");
-                break;
-          case Se:
-                printf("Se ");
-                break;
-          case SeSenao:
-                printf("SeSenao ");
-                break;
-          case Enquanto:
-                printf("Enquanto ");
-                break;
-          case Atribuir:
-                printf("= ");
-                break;
-          case SeTernario:
-                printf("SeTernario ");
-                break;
-          case Or:
-                printf("OU ");
-                break;
-          case And:
-                printf("E ");
-                break;
-          case IgualIgual:
-                printf("== ");
-                break;
-          case Diferente:
-                printf("!= ");
-                break;
-          case Menor:
-                printf("< ");
-                break;
-          case Maior:
-                printf("> ");
-                break;
-          case MenorIg:
-                printf("<= ");
-                break;
-          case MaiorIg:
-                printf(">= ");
-                break;
-          case Mais:
-                printf("+ ");
-                break;
-          case Menos:
-                printf("- ");
-                break;
-          case Vezes:
-                printf("* ");
-                break;
-          case Divisao:
-                printf("/ ");
-                break;
-          case Resto:
-                printf("% ");
-                break;
-          case Negativo:
-                printf("- Un ");
-                break;
-          case Negacao:
-                printf("! ");
-                break;
-          case IdentificadorBEB:
-                printf("Identificador[] %s", tree->token);
-                break;
-          case Identificador:
-                printf("Identificador %s", tree->token);
-                break;
-          case IdentificadorLista:
-                printf("Identificador() %s", tree->token);
-                break;
-          case Carconst:
-                printf("Carconst %s ", tree->token);
-                break;
-          case Intconst:
-                printf("Intconst %s ", tree->token);
-                break;
-          case Virgula:
-                printf(", ");
-                break;
-        }
+      //printf("PRINTING TREE\n");
+      if(tree == NULL) return;
+      //switch 
+      printf("(");
+      switch(tree->type){
+      case Main:
+            printf("PROGRAMA ");
+            break;
+      case programa:
+            printf("programa %s", tree->token);
+            break;
+      case DeclVar1:
+            printf("DeclVar1 %s", tree->token);
+            break;
+      case DeclVar2:
+            printf("DeclVar2 %s", tree->token);
+            break;
+      case DeclFuncVar1:
+            printf("DeclFuncVar1 %s", tree->token);
+            break;
+      case DeclFuncVar2:
+            printf("DeclFuncVar2 %s", tree->token);
+            break;
+      case DeclFuncVar3:
+            printf("DeclFuncVar3 %s", tree->token);
+            break;
+      case DeclFunc:
+            printf("DeclFunc %s", tree->token);
+            break;
+      case ListaParametros2:
+            printf("ListaParametros2 %s", tree->token);
+            break;
+      case ListaParametrosCont1:
+            printf("ListaParametrosCont1 %s", tree->token);
+            break;
+      case ListaParametrosCont2:
+            printf("ListaParametrosCont2 %s", tree->token);
+            break;
+      case ListaParametrosCont3:
+            printf("ListaParametrosCont3 %s", tree->token);
+            break;
+      case ListaParametrosCont4:
+            printf("ListaParametrosCont4 %s", tree->token);
+            break;
+      case Bloco1:
+            printf("Bloco1 %s", tree->token);
+            break;
+      case ListaDeclVar2:
+            printf("ListaDeclVar2 %s", tree->token);
+            break;
+      case ListaDeclVar3:
+            printf("ListaDeclVar3 %s", tree->token);
+            break;
+      case Tipo:
+            printf("Tipo %s ", tree->token);
+            break;
+      case ListaComando2:
+            printf("ListaComando2 ");
+            printf("DeclFunc %s", tree->token);
+            break;
+      case Retorne:
+            printf("Retorne ");
+            break;
+      case Leia:
+            printf("Leia ");
+            break;
+      case Escreva:
+            printf("Escreva ");
+            break;
+      case EscrevaString:
+            printf("EscrevaString %s ", tree->token);
+            break;
+      case Novalinha:
+            printf("Novalinha ");
+            break;
+      case Se:
+            printf("Se ");
+            break;
+      case SeSenao:
+            printf("SeSenao ");
+            break;
+      case Enquanto:
+            printf("Enquanto ");
+            break;
+      case Atribuir:
+            printf("= ");
+            break;
+      case SeTernario:
+            printf("SeTernario ");
+            break;
+      case Or:
+            printf("OU ");
+            break;
+      case And:
+            printf("E ");
+            break;
+      case IgualIgual:
+            printf("== ");
+            break;
+      case Diferente:
+            printf("!= ");
+            break;
+      case Menor:
+            printf("< ");
+            break;
+      case Maior:
+            printf("> ");
+            break;
+      case MenorIg:
+            printf("<= ");
+            break;
+      case MaiorIg:
+            printf(">= ");
+            break;
+      case Mais:
+            printf("+ ");
+            break;
+      case Menos:
+            printf("- ");
+            break;
+      case Vezes:
+            printf("* ");
+            break;
+      case Divisao:
+            printf("/ ");
+            break;
+      case Resto:
+            printf("% ");
+            break;
+      case Negativo:
+            printf("- Un ");
+            break;
+      case Negacao:
+            printf("! ");
+            break;
+      case IdentificadorBEB:
+            printf("Identificador[] %s", tree->token);
+            break;
+      case Identificador:
+            printf("Identificador %s", tree->token);
+            break;
+      case IdentificadorLista:
+            printf("Identificador() %s", tree->token);
+            break;
+      case Carconst:
+            printf("Carconst %s ", tree->token);
+            break;
+      case Intconst:
+            printf("Intconst %s ", tree->token);
+            break;
+      case Virgula:
+            printf(", ");
+            break;
+      }
         //printf(" - Line: %d", tree->line);
         
         //
@@ -359,12 +390,22 @@ void printtree(node *tree) {
         printf(")");
  }
 
+ void printTable(symbolTable **table, int t_size){
+      if(table == NULL) return;
+      int i;
+      for(i = 1; i <= t_size; i++){
+            printf("%s %s decl:%d;", table[i]->token, table[i]->type, table[i]->decl);
+      }
+ }
+
 void printScopeTree(symbolTree *tree){
       if(tree == NULL){
             printf("ERROR: SymbolTree NULL\n");
             return;
       }
-      printf("ESCOPO %s NumChild %d;", tree->scope, tree->nChild);
+      printf("ESCOPO %s NumChild %d; Tipo: %s ;Tabela:", tree->scope, tree->nChild, tree->type);
+      printTable(tree->table,tree->nTable);
+      //printTable(tree->table,tree->nTable);
       if(!tree->nChild) return;
       int i;
       printf("(");
@@ -374,82 +415,160 @@ void printScopeTree(symbolTree *tree){
 
 void insertChild(symbolTree *tree, symbolTree *newNode){
       if(tree == NULL) return;
-      printf("got here %s\n", newNode->scope);
+      //printf("got here %s\n", newNode->scope);
       //if(tree->childs == NULL) tree->childs = (symbolTree **)malloc(sizeof(symbolTree *));
       //tree->childs[tree->nChild] = (symbolTree *)malloc(sizeof(symbolTree));
       tree->childs[tree->nChild] = newNode;
       tree->nChild++;
-      printf("%s %d\n",tree->childs[tree->nChild-1]->scope,tree->childs[tree->nChild-1]->nChild);
+      //printf("%s %d\n",tree->childs[tree->nChild-1]->scope,tree->childs[tree->nChild-1]->nChild);
       return; 
 }
-void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual) {
+
+void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char tipoAtual[100]) {
         //printf("Creating Tree....\n");
         symbolTree *nodeAux, *newNode;
         if(tree == NULL){
             //printf("ERROR: NULL AST\n");
             return;
         }
-        //switch operator
+        //switch operator to create scope
         switch(tree->type){
             
             case programa:
-                  printf("Atualizando escopo para programa\n");
+                  //printf("Atualizando escopo para programa\n");
                   escopoAtual = "programa"; 
                   break;
-            case DeclFunc:
+            //case DeclFuncVar1:
+            //case DeclFuncVar2:
+            case DeclFuncVar3:
                   nodeAux = searchScope(scopeTree,tree->token);
                   if(nodeAux == NULL){
-                        printf("Criando escopo %s como subescopo de %s\n", tree->token,escopoAtual);
+                        //printf("Criando escopo %s como subescopo de %s\n", tree->token,escopoAtual);
                         //newNode = searchScope(scopeTree,escopoAtual);
-                        newNode = createScope(tree->token);
+                        //printf("DeclFuncVar3 tipo da funcao %s",tree->first->token);
+                        newNode = createScope(tree->token,tree->first->token,tree);
                         if(newNode != NULL) insertChild(noAtual,newNode);
                         else printf("newNode NULL\n");
                   }
                   escopoAtual=tree->token;
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Main:
                   nodeAux = searchScope(scopeTree,"PROGRAMA");
                   if(nodeAux == NULL){
-                        printf("Criando escopo PROGRAMA como subescopo de programa\n");
+                        //printf("Criando escopo PROGRAMA como subescopo de programa\n");
                         noAtual = searchScope(scopeTree,"programa");
-                        newNode = createScope("PROGRAMA");
+                        newNode = createScope("PROGRAMA",NULL,tree);
                         if(newNode != NULL) insertChild(noAtual,newNode);
                   }
                   escopoAtual="PROGRAMA";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Se:
-                  printf("Criando escopo Se como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("Se");
+                  //printf("Criando escopo Se como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("Se",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   escopoAtual="Se";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case SeSenao:
-                  printf("Criando escopo SeSenao como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("SeSenao");
+                  //printf("Criando escopo SeSenao como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("SeSenao",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   escopoAtual="SeSenao";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Enquanto:
-                  printf("Criando escopo Enquanto como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("Enquanto");
+                  //printf("Criando escopo Enquanto como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("Enquanto",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   noAtual = newNode;
                   escopoAtual="Enquanto";
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
         }
-          
-        createScopeTree(tree->first,escopoAtual,noAtual);
-        createScopeTree(tree->second,escopoAtual,noAtual);
-        createScopeTree(tree->third,escopoAtual,noAtual);
+
+      symbolTable *novoNode;
+      switch(tree->type){
+            case DeclFuncVar1:
+            case DeclFuncVar2:
+            case ListaDeclVar2:
+            case ListaDeclVar3:
+                  tipoAtual = tree->first->token;
+                  //printf("ListaDeclVar2ou3 %s\n",tipoAtual);
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                        
+                  }
+                  else{
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line-1);
+                        exit(1);       
+                  }
+                  break;
+            case DeclVar1: 
+            case DeclVar2:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  else{
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line);
+                        exit(1);    
+                  }
+                  break;
+            case ListaParametrosCont1:
+            case ListaParametrosCont2:
+            case ListaParametrosCont3:
+            case ListaParametrosCont4:
+                  tipoAtual = tree->first->token;
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                        
+                  }
+                  break;
+            case IdentificadorBEB:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"[]")==NULL){
+                              novoNode = createSymbolNode(tree->token,tree->line,"[]",tree,0);
+                              noAtual->nTable++;
+                              noAtual->table[noAtual->nTable] = novoNode;
+                              //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  break;
+            case Identificador:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"var")==NULL){
+                              novoNode = createSymbolNode(tree->token,tree->line,"var",tree,0);
+                              noAtual->nTable++;
+                              noAtual->table[noAtual->nTable] = novoNode;
+                              //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  break;
+            case IdentificadorLista:
+            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"()")==NULL){
+                  novoNode = createSymbolNode(tree->token,tree->line,"()",tree,0);
+                  noAtual->nTable++;
+                  noAtual->table[noAtual->nTable] = novoNode;
+                  //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+            }
+            break;
+      }
+      /*("ESCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPE ");
+      printTable(noAtual->table,noAtual->nTable);
+      printf("\n\n");*/
+      createScopeTree(tree->first,escopoAtual,noAtual,tipoAtual);
+      createScopeTree(tree->second,escopoAtual,noAtual,tipoAtual);
+      createScopeTree(tree->third,escopoAtual,noAtual,tipoAtual);
  }
 
  char *convert2Str(int x){
@@ -470,8 +589,11 @@ char *newName(char *token){
       //printf("NEWNAME3 ");
       for(it = 0; it < token_size;it++){
             if(!isalnum(token[(int)it])){
-                  //printf("NEWNAME4 ");
                   pos = it;
+                  if(token[pos] == '['){
+                         while(token[pos] != ']') pos++;
+                        pos++;
+                  }
                   break;
             }
       }
@@ -483,70 +605,72 @@ char *newName(char *token){
       }
       return token;
 }
-symbolTable *initTable(char *token, int line, char *type, node *astPointer){
-    symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
-    newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
-    strcpy(newnode->token,token);
-    newnode->line = line;
-    newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
-    strcpy(newnode->type,type);
-    newnode->astPointer = astPointer;
-    newnode->next = NULL;
-    return newnode;
-}
 
-void insertSymbol(symbolTable *table, char *token, int line, char *type, node *astPointer){
-    if(table == NULL){
-        table = initTable(token,line,type,astPointer);
-        return;
-    }
-    symbolTable *aux, *auxNext = table;
-    while(auxNext != NULL){
-        aux = auxNext;
-        auxNext = auxNext->next;
-        if(auxNext == NULL) break;
-    }
-    if(aux == NULL) { printf("ERRO: INSERCAO FALIDA\n"); return;}
-    symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
-    newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
-    strcpy(newnode->token,token);
-    newnode->line = line;
-    newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
-    strcpy(newnode->type,type);
-    newnode->astPointer = astPointer;
-    newnode->next = NULL;
-    aux->next = newnode;
-    return;
-}
-
-int searchSymbol(symbolTable *table, char *token){
-    if(table == NULL) return 0;
-    symbolTable *it,*aux;
-    while(it != NULL){
-        if(it == NULL) break;
-        if(strcmp(it->token,token)==0){
-            return 1;
-            break;
-        }
-        it = it->next;
-    }
-    return 0;
+char *alphaNum(char *token){
+      if(token == NULL) return NULL;
+      //printf("NEWNAME ");
+      int it, token_size,pos;
+      token_size = strlen(token);
+     // printf("NEWNAME2 ");
+      pos = 0;
+      char *aux = (char *)malloc(sizeof(char)*(strlen(token)+1));
+      //printf("NEWNAME3 ");
+      for(it = 0; it < token_size;it++){
+            if(!isalnum(token[(int)it])){
+                  pos = it;
+                  break;
+            }
+      }
+      if(pos){
+            for(it = 0; it < pos; it++){
+                  aux[it] = token[it];
+            }
+            return aux;
+      }
+      return token;
 }
 
 //symbolTable operations end
 
 //symbolTree operations
 
-symbolTree *createScope(char *scope){
+symbolTree *createScope(char *scope, char *type, node *astPointer){
     symbolTree *newnode = (symbolTree *)malloc(sizeof(symbolTree));
     newnode->nChild = 0;
+    newnode->nTable = 0;
     newnode->childs = (symbolTree **)malloc(sizeof(symbolTree *));
-    newnode->table = NULL;
     newnode->scope = (char *)malloc(sizeof(char)*(strlen(scope)+1));
-    //printf("scope be4 %s", scope);
     strcpy(newnode->scope,scope);
+    newnode->table = (symbolTable **)malloc(sizeof(symbolTable *)*2);
+    newnode->table[0] = (symbolTable *)malloc(sizeof(symbolTable));
+    newnode->table[1] = (symbolTable *)malloc(sizeof(symbolTable));
+    if(type != NULL){
+      newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
+      strcpy(newnode->type,type);
+    }
+    newnode->astPointer = astPointer;
     //printf("scope after %s", newnode->scope);
     return newnode;
+}
+
+symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,int decl){
+      symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
+      newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
+      strcpy(newnode->token,token);
+      newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
+      strcpy(newnode->type,type);
+      newnode->line = line;
+      newnode->astPointer = astPointer;
+      newnode->decl = decl;
+      return newnode;   
+}
+symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *type){
+      if(table == NULL) return NULL;
+      int i;
+      for(i = 1; i <= t_size;i++){
+            if(strcmp(table[i]->token,token) == 0 && strcmp(table[i]->type,type)==0) return table[i];
+      }
+      return NULL;
 }
 
 symbolTree *searchScope(symbolTree *tree, char *scope){
@@ -560,18 +684,153 @@ symbolTree *searchScope(symbolTree *tree, char *scope){
       return retorn;
 }
 
-void insertOnScope(symbolTree *tree,char *scope,char *token, int line, char *type, node *astPointer){
-    if(tree == NULL){
-        tree = createScope(scope);
-        if(token != NULL) insertSymbol(tree->table,token,line,type,astPointer);
-        return;
-    }
-    symbolTree *node = searchScope(tree,scope);
-    if(node != NULL) insertSymbol(node->table,token,line,type,astPointer);
-    else{
-        tree->nChild++;
-        insertOnScope(&tree->childs[tree->nChild-1],scope,token,line,type,astPointer);
-    }
-    return;
+void propagarType(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            assignTypes(tree,tree->table[i]);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            propagarType(tree->childs[i]);
+      }
+}
+char StringAux[100];
+void assignTypes(symbolTree *tree, symbolTable *symbol){
+      if(tree == NULL) return;
+      /* casos: []
+      *         ()
+      *         var
+      */ 
+      int i,j;
+      int pos=0;
+      for(i = 0; i < strlen(symbol->token); i++){
+            if(!isalnum(symbol->token[i])){
+                  pos = i;
+                  break;
+            }
+      }
+      if(pos){
+            //printf("ENTEI");
+            strcpy(StringAux,symbol->type);
+            strcpy(StringAux,alphaNum(StringAux));
+            if(symbol->token[pos] == '['){
+                  strcat(StringAux,"[]");
+                  //printf("%s\n",symbol->type);
+                  strcpy(symbol->type,StringAux);
+            }
+            else if(symbol->token[pos] == '('){
+                  strcat(StringAux,"()");
+                  //printf("%s\n",symbol->type);
+                  strcpy(symbol->type,StringAux);
+            }
+      }
+      for(i = 1; i <= tree->nTable;i++){
+            if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
+                  strcpy(StringAux, symbol->type);
+                  if(strcmp(tree->table[i]->type,"[]")==0){
+                        strcpy(tree->table[i]->token, alphaNum(tree->table[i]->token));
+                        //printf("AQUI1 %s\n\n", tree->table[i]->token);
+                        //strcat(StringAux,"[]");
+                        strcpy(tree->table[i]->type,StringAux); 
+                  }
+                  else if(strcmp(tree->table[i]->type,"var")==0){
+                        //printf("AQUI3");
+                        strcpy(tree->table[i]->type,StringAux);
+                  }
+                  else{
+                        if(strcmp(tree->table[i]->type,symbol->type)!=0)
+                              printf("ERRO SEMANTICO: VARIAVEIS DE TIPOS DISTINTOS COM MESMO NOME LINHA %d",tree->table[i]->line);
+                  }
+            }
+      }
+      strcpy(symbol->token, alphaNum(symbol->token));
+
+
+      for(i = 0; i < tree->nChild; i++){
+            assignTypes(tree->childs[i],symbol);
+      }
 }
 
+void procurarDeclaracoes(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            BuscaEmProfundidade(tree,tree->table[i]);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            procurarDeclaracoes(tree->childs[i]);
+      }
+}
+
+void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol){
+      if(tree == NULL) return;
+      /* casos: []
+      *         ()
+      *         var
+      */ 
+      int i,j;
+      
+      for(i = 1; i <= tree->nTable;i++){
+            if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
+                  if(strcmp(tree->table[i]->type,"[]")==0 ||strcmp(tree->table[i]->type,"var")==0){
+                        printf("ERRO SEMANTICO: VARIAVEL %s NAO DECLARADA LINHA %d\n", tree->table[i]->token,tree->table[i]->line);
+                        exit(1);
+                  }
+                  //printf("%d %p\t%d %p\n", symbol->decl,symbol->astPointer,tree->table[i]->decl,tree->table[i]->astPointer);
+            }
+      }
+
+
+      for(i = 0; i < tree->nChild; i++){
+            BuscaEmProfundidade(tree->childs[i],symbol);
+      }
+}
+
+void getReturnNode(node *tree, char *funcReturn){
+      if(tree == NULL) return; 
+      switch(tree->type){
+            case Retorne:
+                  //printf("Retorne %s", enumStrings[(int)tree->first->type]);
+                  switch(tree->first->type){
+                        case Mais:
+                        case Menos:
+                        case Vezes:
+                        case Divisao:
+                        case Resto:
+                        case Negativo:
+                        case Intconst:
+                              if(strcmp(funcReturn,"int")!=0){
+                                    printf("ERRO SEMANTICO: EXPRESSAO TEM TIPO INCOMPATIVEL COM RETORNO DA FUNCAO NA LINHA %d\n", tree->line);
+                                    exit(1);
+                              }
+                              break;
+                        case Carconst:
+                              if(strcmp(funcReturn,"car")!=0){
+                                    printf("ERRO SEMANTICO: EXPRESSAO TEM TIPO INCOMPATIVEL COM RETORNO DA FUNCAO NA LINHA %d\n", tree->line);
+                                    exit(1);
+                              }
+                              break;
+
+                  }
+                  break;
+            default:      
+                  break;
+      }
+      getReturnNode(tree->first,funcReturn);
+      getReturnNode(tree->second,funcReturn);
+      getReturnNode(tree->third,funcReturn);
+}
+
+void checkReturn(symbolTree *tree){
+      if(tree == NULL) return;
+      node *returnNode;
+      if(tree->type != NULL){
+            //printf("tipo funcao %s\n", tree->type);
+            getReturnNode(tree->astPointer,tree->type);
+      }
+      int i;
+      for(i = 0; i < tree->nChild;i++){
+            checkReturn(tree->childs[i]);
+      }
+
+}

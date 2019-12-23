@@ -72,28 +72,36 @@
 "ListaParametrosCont4","Bloco1","ListaDeclVar2","ListaDeclVar3","Tipo","ListaComando2","Retorne","Leia","Escreva",
 "EscrevaString","Novalinha","Se","SeSenao","Enquanto","Atribuir","SeTernario","Or","And","IgualIgual","Diferente","Menor",
 "Maior","MenorIg","MaiorIg","Mais","Menos","Vezes","Divisao","Resto","Negativo","Negacao","IdentificadorBEB","Identificador",
-"IdentificadorLista","Carconst","Intconst","Virgula","Main"};
+"IdentificadorLista","Carconst","Intconst","Virgula","Main","DeclVar1","DeclVar2","ListaParametrosCont1", "ListaParametrosCont2","ListaParametros2"};
       extern int yylineno;
+      char *alphaNum(char *token);
       node *mknode(Operator type, int line, node *first, node *second, node *third, char *token);
       void printtree(node *tree);
+      void printTable(symbolTable **table, int t_size);
       char *convert2Str(int x);
       void createSymbolTree(node *tree);
+      symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,int decl);
       char *newName(char *token);
-      void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual);
+      void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual, char tipoAtual[100]);
       void insertChild(symbolTree *tree, symbolTree *newNode);
-      symbolTable *initTable(char *token, int line, char *type, node *astPointer);
-      void insertSymbol(symbolTable *table, char *token, int line, char *type, node *astPointer);
-      int searchSymbol(symbolTable *table, char *token);
+      void insertSymbol(symbolTree *tree, symbolTable *newNode);
+      symbolTable *searchSymbol(symbolTable **table, int t_size, char *token, char *type);
       //symbolTree operations
-      symbolTree *createScope(char *scope);
+      symbolTree *createScope(char *scope, char *type, node *astPointer);
       symbolTree *searchScope(symbolTree *tree, char *scope);
       void insertOnScope(symbolTree *tree,char *scope,char *token, int line, char *type, node *astPointer);
+      void propagarType(symbolTree *tree);
+      void assignTypes(symbolTree *tree, symbolTable *symbol);
+      void procurarDeclaracoes(symbolTree *tree);
+      void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol);
+      void getReturnNode(node *tree, char *funcReturn);
+      void checkReturn(symbolTree *tree);
       symbolTree *scopeTree;
       node *tree;
       char escopo[100] = "global";
 	yydebug=1;
 
-#line 97 "cafezinho.tab.c" /* yacc.c:339  */
+#line 105 "cafezinho.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -165,10 +173,10 @@ extern int yydebug;
     SEMI = 292,
     VIRGULA = 293,
     ATRIB = 294,
-    ID = 295,
-    INTCONST = 296,
-    CARCONST = 297,
-    STRING = 298
+    INTCONST = 295,
+    CARCONST = 296,
+    STRING = 297,
+    ID = 298
   };
 #endif
 
@@ -177,13 +185,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 32 "./fonte/cafezinho.y" /* yacc.c:355  */
+#line 40 "./fonte/cafezinho.y" /* yacc.c:355  */
 
         int lineno;
         char *string;
         node* node_type;
 
-#line 187 "cafezinho.tab.c" /* yacc.c:355  */
+#line 195 "cafezinho.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -200,7 +208,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 204 "cafezinho.tab.c" /* yacc.c:358  */
+#line 212 "cafezinho.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -501,14 +509,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    52,    52,    55,    56,    57,    58,    62,    65,    66,
-      67,    70,    73,    74,    77,    78,    79,    80,    83,    84,
-      87,    88,    89,    92,    93,    96,    97,   101,   102,   103,
-     104,   105,   106,   107,   108,   109,   110,   111,   114,   116,
-     117,   120,   121,   125,   126,   129,   130,   133,   134,   135,
-     138,   139,   140,   141,   142,   145,   146,   147,   150,   151,
-     152,   153,   156,   157,   158,   161,   162,   165,   166,   167,
-     168,   169,   170,   171,   174,   175
+       0,    61,    61,    64,    65,    66,    67,    71,    74,    75,
+      76,    79,    82,    83,    86,    87,    88,    89,    92,    93,
+      96,    97,    98,   101,   102,   105,   106,   110,   111,   112,
+     113,   114,   115,   116,   117,   118,   119,   120,   123,   125,
+     126,   129,   130,   134,   135,   138,   139,   142,   143,   144,
+     147,   148,   149,   150,   151,   154,   155,   156,   159,   160,
+     161,   162,   165,   166,   167,   170,   171,   174,   175,   176,
+     177,   178,   179,   180,   183,   184
 };
 #endif
 
@@ -523,7 +531,7 @@ static const char *const yytname[] =
   "RESTO", "OUEXPR", "EEXPR", "ANULEXPR", "DBIGUAL", "DIFF", "MAIORQ",
   "MENORQ", "MAIORIGQ", "MENORIGQ", "INTERROG", "DOISPONT", "EPAREN",
   "DPAREN", "DBRACK", "EBRACK", "EBRACE", "DBRACE", "SEMI", "VIRGULA",
-  "ATRIB", "ID", "INTCONST", "CARCONST", "STRING", "$accept", "programa",
+  "ATRIB", "INTCONST", "CARCONST", "STRING", "ID", "$accept", "programa",
   "DeclFuncVar", "DeclProg", "DeclVar", "DeclFunc", "ListaParametros",
   "ListaParametrosCont", "Bloco", "ListaDeclVar", "Tipo", "ListaComando",
   "Comando", "Expr", "AssignExpr", "CondExpr", "OrExpr", "AndExpr",
@@ -545,10 +553,10 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -139
+#define YYPACT_NINF -134
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-139)))
+  (!!((Yystate) == (-134)))
 
 #define YYTABLE_NINF -67
 
@@ -559,23 +567,23 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      42,  -139,  -139,    10,    28,   -23,  -139,   -12,  -139,    47,
-      42,  -139,    42,    -4,    12,    22,    42,    35,    34,    55,
-    -139,    39,    76,    20,    42,  -139,    51,    71,   102,    25,
-      82,    96,   -15,   -15,    51,  -139,  -139,    29,  -139,  -139,
-    -139,    95,    88,    97,  -139,  -139,    -1,   128,    41,    80,
-      84,   119,  -139,   117,  -139,    46,   -12,    52,   120,   116,
-    -139,  -139,   122,   126,   124,   125,   127,  -139,    51,    51,
-       1,  -139,  -139,   131,    -2,    51,  -139,  -139,  -139,   110,
-      51,   110,   110,   110,   110,   110,   110,   110,   110,   110,
-     110,   110,   110,    51,   129,   130,  -139,   132,    42,   134,
-     133,  -139,    51,  -139,  -139,  -139,   136,   137,    51,  -139,
-    -139,  -139,   -14,   139,   128,   143,    41,    80,    80,    84,
-      84,    84,    84,   119,   119,  -139,  -139,  -139,  -139,   141,
-      42,   138,  -139,    42,   120,   142,   166,   164,   146,  -139,
-      51,   144,   110,   120,  -139,    42,  -139,  -139,  -139,    88,
-      88,  -139,  -139,  -139,   145,  -139,   168,  -139,    42,    88,
-    -139,  -139
+      42,  -134,  -134,    12,    21,     9,  -134,    52,  -134,    29,
+      42,  -134,    42,    25,    34,    78,    42,    35,    64,    84,
+    -134,    87,    94,   -24,    42,  -134,   110,    93,   102,    80,
+     106,   107,   -20,   -20,   110,  -134,  -134,  -134,  -134,     1,
+    -134,   103,    88,   109,  -134,  -134,    -2,   126,    50,     3,
+      70,    74,  -134,   113,  -134,    20,    52,    30,   116,   115,
+    -134,  -134,   119,   123,   125,   127,   128,  -134,   110,   110,
+      28,  -134,  -134,   131,    68,   110,  -134,  -134,  -134,   118,
+     110,   118,   118,   118,   118,   118,   118,   118,   118,   118,
+     118,   118,   118,   110,   120,   129,  -134,   134,    42,   132,
+     135,  -134,   110,  -134,  -134,  -134,   138,   139,   110,  -134,
+    -134,  -134,   -13,   140,   126,   142,    50,     3,     3,    70,
+      70,    70,    70,    74,    74,  -134,  -134,  -134,  -134,   141,
+      42,   137,  -134,    42,   116,   143,   166,   164,   146,  -134,
+     110,   144,   118,   116,  -134,    42,  -134,  -134,  -134,    88,
+      88,  -134,  -134,  -134,   145,  -134,   168,  -134,    42,    88,
+    -134,  -134
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -586,7 +594,7 @@ static const yytype_uint8 yydefact[] =
        6,    23,    24,     0,     0,     0,     1,     0,     2,    10,
       20,     7,    12,     0,     0,     0,     6,     0,     0,     0,
       13,     0,     0,    10,     6,     5,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    19,    27,    70,    72,    71,
+       0,     0,     0,     0,     0,    19,    27,    72,    71,    70,
       37,     0,    25,     0,    38,    39,    41,    44,    46,    49,
       54,    57,    61,     0,    64,    10,     0,    14,    10,     0,
        8,     3,     0,    66,     0,     0,     0,    33,     0,     0,
@@ -605,9 +613,9 @@ static const yytype_uint8 yydefact[] =
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -139,  -139,   -11,  -139,   -22,  -139,  -139,   -90,    -3,  -124,
-     -10,   147,  -138,   -19,   -71,    43,  -139,   105,   100,    57,
-      30,    14,    63,   159,   114,  -139
+    -134,  -134,   -11,  -134,   -22,  -134,  -134,   -90,    -3,  -124,
+     -10,   147,  -133,   -19,   -71,    39,  -134,   105,   104,    23,
+      -5,    14,   -53,   159,    81,  -134
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -624,66 +632,66 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int16 yytable[] =
 {
       18,    60,    21,   111,    11,    25,   144,    62,   132,    66,
-       6,   156,   157,    61,    32,    73,    34,     9,   139,    79,
-      33,   161,   128,    10,   140,    70,    38,    39,    80,    34,
-     110,     7,    74,    95,   160,   108,    99,    22,    37,    38,
-      39,    26,    27,    28,    29,    30,     1,     2,    31,   106,
-     107,    32,    23,    96,    59,   155,   113,    33,    14,    24,
-      74,   115,    67,    75,    82,    83,    34,    32,   -66,   152,
-      10,    35,    36,    33,    55,    37,    38,    39,    12,    57,
-      94,    13,    34,   135,    14,    14,    97,    56,    21,   138,
-      98,    37,    38,    39,    26,    27,    28,    29,    30,    88,
-      89,    31,   123,   124,    32,    84,    85,    86,    87,    58,
-      33,    63,   147,    68,   119,   120,   121,   122,    32,    34,
-      18,   154,   146,    10,    33,    36,    32,    69,    37,    38,
-      39,    76,    33,    34,    78,    21,    90,    91,    92,   117,
-     118,    34,    37,    38,    39,    65,    71,    72,    18,    81,
-      70,    38,    39,   125,   126,   127,    93,   100,    14,   101,
-     102,   103,   104,   109,   105,   131,   134,   130,   136,   137,
-     129,   133,   141,   142,   143,   148,   145,   149,   150,   151,
-     159,   116,   158,   -65,   114,   153,    64,     0,     0,    77
+      59,    34,     6,    61,    14,    73,   156,   157,    79,   139,
+      37,    38,   128,    70,     7,   140,   161,    80,    84,    85,
+      86,    87,    74,    95,   160,    75,    99,   125,   126,   127,
+     -66,    26,    27,    28,    29,    30,     1,     2,    31,   106,
+     107,    32,     9,    96,    94,   155,   113,    33,    14,    74,
+      12,   115,   108,    13,    97,    22,    34,    14,    98,   152,
+      10,    35,    36,    82,    83,    37,    38,    23,    39,   119,
+     120,   121,   122,   135,    32,    88,    89,    10,    21,   138,
+      33,    90,    91,    92,    26,    27,    28,    29,    30,    34,
+     110,    31,   123,   124,    32,   117,   118,    55,    37,    38,
+      33,    39,   147,    71,    72,    24,    56,    67,    32,    34,
+      18,   154,   146,    10,    33,    36,    32,    58,    37,    38,
+      57,    39,    33,    34,    32,    21,    63,    68,    69,    76,
+      33,    34,    37,    38,    65,    39,    78,    81,    18,    34,
+      37,    38,    93,    39,    14,   100,   101,   102,    37,    38,
+     129,    70,   103,   109,   104,   105,   130,   131,   134,   133,
+     136,   137,   142,   141,   143,   145,   148,   149,   150,   151,
+     159,   153,   158,   -65,   114,   116,    64,     0,     0,    77
 };
 
 static const yytype_int16 yycheck[] =
 {
       10,    23,    12,    74,     7,    16,   130,    26,    98,    28,
-       0,   149,   150,    24,    16,    34,    31,    40,    32,    20,
-      22,   159,    93,    35,    38,    40,    41,    42,    29,    31,
-      32,     3,    31,    55,   158,    34,    58,    41,    40,    41,
-      42,     6,     7,     8,     9,    10,     4,     5,    13,    68,
-      69,    16,    40,    56,    34,   145,    75,    22,    38,    37,
-      31,    80,    37,    34,    23,    24,    31,    16,    39,   140,
-      35,    36,    37,    22,    40,    40,    41,    42,    31,    40,
-      34,    34,    31,   102,    38,    38,    34,    32,    98,   108,
-      38,    40,    41,    42,     6,     7,     8,     9,    10,    15,
-      16,    13,    88,    89,    16,    25,    26,    27,    28,    33,
-      22,    40,   134,    31,    84,    85,    86,    87,    16,    31,
-     130,   143,   133,    35,    22,    37,    16,    31,    40,    41,
-      42,    36,    22,    31,    37,   145,    17,    18,    19,    82,
-      83,    31,    40,    41,    42,    43,    32,    33,   158,    21,
-      40,    41,    42,    90,    91,    92,    39,    41,    38,    37,
-      34,    37,    37,    32,    37,    33,    33,    37,    32,    32,
-      41,    37,    33,    30,    33,    33,    38,    11,    14,    33,
-      12,    81,    37,    39,    79,   142,    27,    -1,    -1,    42
+      34,    31,     0,    24,    38,    34,   149,   150,    20,    32,
+      40,    41,    93,    43,     3,    38,   159,    29,    25,    26,
+      27,    28,    31,    55,   158,    34,    58,    90,    91,    92,
+      39,     6,     7,     8,     9,    10,     4,     5,    13,    68,
+      69,    16,    43,    56,    34,   145,    75,    22,    38,    31,
+      31,    80,    34,    34,    34,    40,    31,    38,    38,   140,
+      35,    36,    37,    23,    24,    40,    41,    43,    43,    84,
+      85,    86,    87,   102,    16,    15,    16,    35,    98,   108,
+      22,    17,    18,    19,     6,     7,     8,     9,    10,    31,
+      32,    13,    88,    89,    16,    82,    83,    43,    40,    41,
+      22,    43,   134,    32,    33,    37,    32,    37,    16,    31,
+     130,   143,   133,    35,    22,    37,    16,    33,    40,    41,
+      43,    43,    22,    31,    16,   145,    43,    31,    31,    36,
+      22,    31,    40,    41,    42,    43,    37,    21,   158,    31,
+      40,    41,    39,    43,    38,    40,    37,    34,    40,    41,
+      40,    43,    37,    32,    37,    37,    37,    33,    33,    37,
+      32,    32,    30,    33,    33,    38,    33,    11,    14,    33,
+      12,   142,    37,    39,    79,    81,    27,    -1,    -1,    42
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     4,     5,    45,    46,    54,     0,     3,    47,    40,
+       0,     4,     5,    45,    46,    54,     0,     3,    47,    43,
       35,    52,    31,    34,    38,    48,    49,    53,    54,    50,
-      51,    54,    41,    40,    37,    46,     6,     7,     8,     9,
-      10,    13,    16,    22,    31,    36,    37,    40,    41,    42,
+      51,    54,    40,    43,    37,    46,     6,     7,     8,     9,
+      10,    13,    16,    22,    31,    36,    37,    40,    41,    43,
       52,    55,    56,    57,    58,    59,    60,    61,    62,    63,
-      64,    65,    66,    67,    68,    40,    32,    40,    33,    34,
-      48,    46,    57,    40,    67,    43,    57,    37,    31,    31,
-      40,    68,    68,    57,    31,    34,    36,    55,    37,    20,
+      64,    65,    66,    67,    68,    43,    32,    43,    33,    34,
+      48,    46,    57,    43,    67,    42,    57,    37,    31,    31,
+      43,    68,    68,    57,    31,    34,    36,    55,    37,    20,
       29,    21,    23,    24,    25,    26,    27,    28,    15,    16,
       17,    18,    19,    39,    34,    48,    52,    34,    38,    48,
-      41,    37,    34,    37,    37,    37,    57,    57,    34,    32,
+      40,    37,    34,    37,    37,    37,    57,    57,    34,    32,
       32,    58,    69,    57,    61,    57,    62,    63,    63,    64,
-      64,    64,    64,    65,    65,    66,    66,    66,    58,    41,
+      64,    64,    64,    65,    65,    66,    66,    66,    58,    40,
       37,    33,    51,    37,    33,    57,    32,    32,    57,    32,
       38,    33,    30,    33,    53,    38,    46,    48,    33,    11,
       14,    33,    58,    59,    48,    51,    56,    56,    37,    12,
@@ -1390,451 +1398,451 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 52 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 61 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {tree = mknode(programa,yylineno,(yyvsp[-1].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1396 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1404 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 55 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(DeclFuncVar1,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1402 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 64 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(DeclFuncVar1,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-3].string)));}
+#line 1410 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 56 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(DeclFuncVar2,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1408 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 65 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(DeclFuncVar2,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-6].string)));}
+#line 1416 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 57 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(DeclFuncVar3,yylineno,(yyvsp[-3].node_type),(yyvsp[-1].node_type),(yyvsp[0].node_type),NULL);}
-#line 1414 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 66 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(DeclFuncVar3,yylineno,(yyvsp[-3].node_type),(yyvsp[-1].node_type),(yyvsp[0].node_type),newName((yyvsp[-2].string)));}
+#line 1422 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 58 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 67 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1420 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1428 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 62 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 71 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Main,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1426 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1434 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 65 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1432 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 74 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(DeclVar1,yylineno,(yyvsp[0].node_type),NULL,NULL,newName((yyvsp[-1].string)));}
+#line 1440 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 66 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1438 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 75 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(DeclVar2,yylineno,(yyvsp[0].node_type),NULL,NULL,newName((yyvsp[-4].string)));}
+#line 1446 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 67 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 76 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1444 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1452 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 70 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 79 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(DeclFunc,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,newName(yyval.string));}
-#line 1450 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1458 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 73 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 82 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1456 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1464 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 74 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1462 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 83 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaParametros2,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
+#line 1470 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 77 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1468 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 86 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaParametrosCont1,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName((yyvsp[0].string)));}
+#line 1476 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 78 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = (yyvsp[-3].node_type);}
-#line 1474 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 87 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaParametrosCont2,yylineno,(yyvsp[-3].node_type),NULL,NULL,newName((yyvsp[-2].string)));}
+#line 1482 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 79 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(ListaParametrosCont3,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1480 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 88 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaParametrosCont3,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,newName((yyvsp[-2].string)));}
+#line 1488 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 80 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(ListaParametrosCont4,yylineno,(yyvsp[-5].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1486 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 89 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaParametrosCont4,yylineno,(yyvsp[-5].node_type),(yyvsp[0].node_type),NULL,newName((yyvsp[-4].string)));}
+#line 1494 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 83 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 92 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Bloco1,yylineno,(yyvsp[-2].node_type),(yyvsp[-1].node_type),NULL,NULL);}
-#line 1492 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1500 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 84 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 93 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1498 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1506 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 87 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 96 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1504 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1512 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 88 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(ListaDeclVar2,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1510 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 97 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaDeclVar2,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-3].string)));}
+#line 1518 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 89 "./fonte/cafezinho.y" /* yacc.c:1646  */
-    {(yyval.node_type) = mknode(ListaDeclVar3,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1516 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 98 "./fonte/cafezinho.y" /* yacc.c:1646  */
+    {(yyval.node_type) = mknode(ListaDeclVar3,yylineno,(yyvsp[-7].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),newName((yyvsp[-6].string)));}
+#line 1524 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 92 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 101 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Tipo,yylineno,NULL,NULL,NULL,"int");}
-#line 1522 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1530 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 93 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 102 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Tipo,yylineno,NULL,NULL,NULL,"car");}
-#line 1528 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1536 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 96 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 105 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1534 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1542 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 97 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 106 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(ListaComando2,yylineno,(yyvsp[-1].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1540 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1548 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 101 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 110 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = NULL;}
-#line 1546 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1554 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 102 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 111 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1552 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1560 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 103 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 112 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Retorne,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1558 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1566 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 104 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 113 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Leia,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1564 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1572 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 105 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 114 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Escreva,yylineno,(yyvsp[-1].node_type),NULL,NULL,NULL);}
-#line 1570 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1578 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 106 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 115 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(EscrevaString,yylineno,NULL,NULL,NULL,NULL);}
-#line 1576 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1584 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 107 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 116 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Novalinha,yylineno,NULL,NULL,NULL,NULL);}
-#line 1582 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1590 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 108 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 117 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Se,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1588 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1596 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 109 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 118 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(SeSenao,yylineno,(yyvsp[-5].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1594 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1602 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 110 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 119 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Enquanto,yylineno,(yyvsp[-3].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1600 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1608 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 111 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 120 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1606 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1614 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 114 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 123 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1612 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1620 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 116 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 125 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1618 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1626 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 117 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 126 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Atribuir,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1624 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1632 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 120 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 129 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1630 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1638 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 121 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 130 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(SeTernario,yylineno,(yyvsp[-4].node_type),(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL);}
-#line 1636 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1644 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 125 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 134 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Or,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1642 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1650 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 126 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 135 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1648 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1656 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 129 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 138 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(And,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1654 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1662 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 130 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 139 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1660 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1668 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 133 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 142 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IgualIgual,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1666 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1674 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 134 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 143 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Diferente,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1672 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1680 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 135 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 144 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1678 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1686 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 138 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 147 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Menor,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1684 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1692 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 139 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 148 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Maior,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1690 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1698 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 140 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 149 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(MenorIg,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1696 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1704 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 141 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 150 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(MaiorIg,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1702 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1710 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 142 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 151 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1708 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1716 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 145 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 154 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Mais,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1714 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1722 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 146 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 155 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Menos,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1720 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1728 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 147 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 156 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1726 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1734 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 150 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 159 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Vezes,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1732 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1740 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 151 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 160 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Divisao,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1738 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1746 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 152 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 161 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Resto,yylineno,(yyvsp[-2].node_type),(yyvsp[0].node_type),NULL,NULL);}
-#line 1744 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1752 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 153 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 162 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1750 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1758 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 156 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 165 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Negativo,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1756 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1764 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 157 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 166 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Negacao,yylineno,(yyvsp[0].node_type),NULL,NULL,NULL);}
-#line 1762 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1770 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 158 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 167 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1768 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1776 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 161 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 170 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorBEB,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1774 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1782 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 162 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 171 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1780 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1788 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 165 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 174 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorLista,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1786 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1794 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 166 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 175 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1792 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1800 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 167 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 176 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(IdentificadorBEB,yylineno,(yyvsp[-1].node_type),NULL,NULL,newName(yyval.string));}
-#line 1798 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1806 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 168 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 177 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Identificador,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1804 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1812 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 169 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 178 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Carconst,yylineno,NULL,NULL,NULL,newName(yyval.string));}
-#line 1810 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1818 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 170 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 179 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Intconst,yylineno,NULL,NULL,NULL,convert2Str(yyval.string));}
-#line 1816 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1824 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 171 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 180 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[-1].node_type);}
-#line 1822 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1830 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 174 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 183 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = (yyvsp[0].node_type);}
-#line 1828 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1836 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 175 "./fonte/cafezinho.y" /* yacc.c:1646  */
+#line 184 "./fonte/cafezinho.y" /* yacc.c:1646  */
     {(yyval.node_type) = mknode(Virgula, yylineno,(yyvsp[-2].node_type), (yyvsp[0].node_type), NULL, NULL);}
-#line 1834 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1842 "cafezinho.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1838 "cafezinho.tab.c" /* yacc.c:1646  */
+#line 1846 "cafezinho.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2062,7 +2070,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 177 "./fonte/cafezinho.y" /* yacc.c:1906  */
+#line 186 "./fonte/cafezinho.y" /* yacc.c:1906  */
 
 
 yywrap(){
@@ -2074,10 +2082,16 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-      //printtree(tree);
-      scopeTree = createScope("programa");
-      createScopeTree(tree, "programa", scopeTree);
-      printScopeTree(scopeTree);       
+      printtree(tree);
+      fflush(stdin);
+      //printf("\n");
+      scopeTree = createScope("programa",NULL,tree);
+      createScopeTree(tree, "programa", scopeTree, "NOTYPE");
+      propagarType(scopeTree);      
+      procurarDeclaracoes(scopeTree); 
+      //printScopeTree(scopeTree);
+      checkReturn(scopeTree);
+      printf("\n");     
 }
 
 node *mknode(Operator type, int line, node *first, node *second, node *third, char *token){
@@ -2101,144 +2115,160 @@ node *mknode(Operator type, int line, node *first, node *second, node *third, ch
         return newnode;
 }
 void printtree(node *tree) {
-        //printf("PRINTING TREE\n");
-        if(tree == NULL) return;
-        //switch 
-        printf("(");
-        switch(tree->type){
-            case Main:
-                  printf("PROGRAMA ");
-                  break;
-          case programa:
-                printf("programa %s", tree->token);
-                break;
-          case DeclFuncVar1:
-                printf("DeclFuncVar1 %s", tree->token);
-                break;
-          case DeclFuncVar2:
-                printf("DeclFuncVar2 %s", tree->token);
-                break;
-          case DeclFuncVar3:
-                printf("DeclFuncVar3 %s", tree->token);
-                break;
-          case DeclFunc:
-                printf("ListaParametrosCont3 %s", tree->token);
-                break;
-          case ListaParametrosCont4:
-                printf("ListaParametrosCont4 %s", tree->token);
-                break;
-          case Bloco1:
-                printf("Bloco1 %s", tree->token);
-                break;
-          case ListaDeclVar2:
-                printf("ListaDeclVar2 %s", tree->token);
-                break;
-          case ListaDeclVar3:
-                printf("ListaDeclVar3 %s", tree->token);
-                break;
-          case Tipo:
-                printf("Tipo %s ", tree->token);
-                break;
-          case ListaComando2:
-                printf("ListaComando2 ");
-                printf("DeclFunc %s", tree->token);
-                break;
-          case ListaParametrosCont3:
-                break;
-          case Retorne:
-                printf("Retorne ");
-                break;
-          case Leia:
-                printf("Leia ");
-                break;
-          case Escreva:
-                printf("Escreva ");
-                break;
-          case EscrevaString:
-                printf("EscrevaString %s ", tree->token);
-                break;
-          case Novalinha:
-                printf("Novalinha ");
-                break;
-          case Se:
-                printf("Se ");
-                break;
-          case SeSenao:
-                printf("SeSenao ");
-                break;
-          case Enquanto:
-                printf("Enquanto ");
-                break;
-          case Atribuir:
-                printf("= ");
-                break;
-          case SeTernario:
-                printf("SeTernario ");
-                break;
-          case Or:
-                printf("OU ");
-                break;
-          case And:
-                printf("E ");
-                break;
-          case IgualIgual:
-                printf("== ");
-                break;
-          case Diferente:
-                printf("!= ");
-                break;
-          case Menor:
-                printf("< ");
-                break;
-          case Maior:
-                printf("> ");
-                break;
-          case MenorIg:
-                printf("<= ");
-                break;
-          case MaiorIg:
-                printf(">= ");
-                break;
-          case Mais:
-                printf("+ ");
-                break;
-          case Menos:
-                printf("- ");
-                break;
-          case Vezes:
-                printf("* ");
-                break;
-          case Divisao:
-                printf("/ ");
-                break;
-          case Resto:
-                printf("% ");
-                break;
-          case Negativo:
-                printf("- Un ");
-                break;
-          case Negacao:
-                printf("! ");
-                break;
-          case IdentificadorBEB:
-                printf("Identificador[] %s", tree->token);
-                break;
-          case Identificador:
-                printf("Identificador %s", tree->token);
-                break;
-          case IdentificadorLista:
-                printf("Identificador() %s", tree->token);
-                break;
-          case Carconst:
-                printf("Carconst %s ", tree->token);
-                break;
-          case Intconst:
-                printf("Intconst %s ", tree->token);
-                break;
-          case Virgula:
-                printf(", ");
-                break;
-        }
+      //printf("PRINTING TREE\n");
+      if(tree == NULL) return;
+      //switch 
+      printf("(");
+      switch(tree->type){
+      case Main:
+            printf("PROGRAMA ");
+            break;
+      case programa:
+            printf("programa %s", tree->token);
+            break;
+      case DeclVar1:
+            printf("DeclVar1 %s", tree->token);
+            break;
+      case DeclVar2:
+            printf("DeclVar2 %s", tree->token);
+            break;
+      case DeclFuncVar1:
+            printf("DeclFuncVar1 %s", tree->token);
+            break;
+      case DeclFuncVar2:
+            printf("DeclFuncVar2 %s", tree->token);
+            break;
+      case DeclFuncVar3:
+            printf("DeclFuncVar3 %s", tree->token);
+            break;
+      case DeclFunc:
+            printf("DeclFunc %s", tree->token);
+            break;
+      case ListaParametros2:
+            printf("ListaParametros2 %s", tree->token);
+            break;
+      case ListaParametrosCont1:
+            printf("ListaParametrosCont1 %s", tree->token);
+            break;
+      case ListaParametrosCont2:
+            printf("ListaParametrosCont2 %s", tree->token);
+            break;
+      case ListaParametrosCont3:
+            printf("ListaParametrosCont3 %s", tree->token);
+            break;
+      case ListaParametrosCont4:
+            printf("ListaParametrosCont4 %s", tree->token);
+            break;
+      case Bloco1:
+            printf("Bloco1 %s", tree->token);
+            break;
+      case ListaDeclVar2:
+            printf("ListaDeclVar2 %s", tree->token);
+            break;
+      case ListaDeclVar3:
+            printf("ListaDeclVar3 %s", tree->token);
+            break;
+      case Tipo:
+            printf("Tipo %s ", tree->token);
+            break;
+      case ListaComando2:
+            printf("ListaComando2 ");
+            printf("DeclFunc %s", tree->token);
+            break;
+      case Retorne:
+            printf("Retorne ");
+            break;
+      case Leia:
+            printf("Leia ");
+            break;
+      case Escreva:
+            printf("Escreva ");
+            break;
+      case EscrevaString:
+            printf("EscrevaString %s ", tree->token);
+            break;
+      case Novalinha:
+            printf("Novalinha ");
+            break;
+      case Se:
+            printf("Se ");
+            break;
+      case SeSenao:
+            printf("SeSenao ");
+            break;
+      case Enquanto:
+            printf("Enquanto ");
+            break;
+      case Atribuir:
+            printf("= ");
+            break;
+      case SeTernario:
+            printf("SeTernario ");
+            break;
+      case Or:
+            printf("OU ");
+            break;
+      case And:
+            printf("E ");
+            break;
+      case IgualIgual:
+            printf("== ");
+            break;
+      case Diferente:
+            printf("!= ");
+            break;
+      case Menor:
+            printf("< ");
+            break;
+      case Maior:
+            printf("> ");
+            break;
+      case MenorIg:
+            printf("<= ");
+            break;
+      case MaiorIg:
+            printf(">= ");
+            break;
+      case Mais:
+            printf("+ ");
+            break;
+      case Menos:
+            printf("- ");
+            break;
+      case Vezes:
+            printf("* ");
+            break;
+      case Divisao:
+            printf("/ ");
+            break;
+      case Resto:
+            printf("% ");
+            break;
+      case Negativo:
+            printf("- Un ");
+            break;
+      case Negacao:
+            printf("! ");
+            break;
+      case IdentificadorBEB:
+            printf("Identificador[] %s", tree->token);
+            break;
+      case Identificador:
+            printf("Identificador %s", tree->token);
+            break;
+      case IdentificadorLista:
+            printf("Identificador() %s", tree->token);
+            break;
+      case Carconst:
+            printf("Carconst %s ", tree->token);
+            break;
+      case Intconst:
+            printf("Intconst %s ", tree->token);
+            break;
+      case Virgula:
+            printf(", ");
+            break;
+      }
         //printf(" - Line: %d", tree->line);
         
         //
@@ -2248,12 +2278,22 @@ void printtree(node *tree) {
         printf(")");
  }
 
+ void printTable(symbolTable **table, int t_size){
+      if(table == NULL) return;
+      int i;
+      for(i = 1; i <= t_size; i++){
+            printf("%s %s decl:%d;", table[i]->token, table[i]->type, table[i]->decl);
+      }
+ }
+
 void printScopeTree(symbolTree *tree){
       if(tree == NULL){
             printf("ERROR: SymbolTree NULL\n");
             return;
       }
-      printf("ESCOPO %s NumChild %d;", tree->scope, tree->nChild);
+      printf("ESCOPO %s NumChild %d; Tipo: %s ;Tabela:", tree->scope, tree->nChild, tree->type);
+      printTable(tree->table,tree->nTable);
+      //printTable(tree->table,tree->nTable);
       if(!tree->nChild) return;
       int i;
       printf("(");
@@ -2263,82 +2303,160 @@ void printScopeTree(symbolTree *tree){
 
 void insertChild(symbolTree *tree, symbolTree *newNode){
       if(tree == NULL) return;
-      printf("got here %s\n", newNode->scope);
+      //printf("got here %s\n", newNode->scope);
       //if(tree->childs == NULL) tree->childs = (symbolTree **)malloc(sizeof(symbolTree *));
       //tree->childs[tree->nChild] = (symbolTree *)malloc(sizeof(symbolTree));
       tree->childs[tree->nChild] = newNode;
       tree->nChild++;
-      printf("%s %d\n",tree->childs[tree->nChild-1]->scope,tree->childs[tree->nChild-1]->nChild);
+      //printf("%s %d\n",tree->childs[tree->nChild-1]->scope,tree->childs[tree->nChild-1]->nChild);
       return; 
 }
-void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual) {
+
+void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char tipoAtual[100]) {
         //printf("Creating Tree....\n");
         symbolTree *nodeAux, *newNode;
         if(tree == NULL){
             //printf("ERROR: NULL AST\n");
             return;
         }
-        //switch operator
+        //switch operator to create scope
         switch(tree->type){
             
             case programa:
-                  printf("Atualizando escopo para programa\n");
+                  //printf("Atualizando escopo para programa\n");
                   escopoAtual = "programa"; 
                   break;
-            case DeclFunc:
+            //case DeclFuncVar1:
+            //case DeclFuncVar2:
+            case DeclFuncVar3:
                   nodeAux = searchScope(scopeTree,tree->token);
                   if(nodeAux == NULL){
-                        printf("Criando escopo %s como subescopo de %s\n", tree->token,escopoAtual);
+                        //printf("Criando escopo %s como subescopo de %s\n", tree->token,escopoAtual);
                         //newNode = searchScope(scopeTree,escopoAtual);
-                        newNode = createScope(tree->token);
+                        //printf("DeclFuncVar3 tipo da funcao %s",tree->first->token);
+                        newNode = createScope(tree->token,tree->first->token,tree);
                         if(newNode != NULL) insertChild(noAtual,newNode);
                         else printf("newNode NULL\n");
                   }
                   escopoAtual=tree->token;
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Main:
                   nodeAux = searchScope(scopeTree,"PROGRAMA");
                   if(nodeAux == NULL){
-                        printf("Criando escopo PROGRAMA como subescopo de programa\n");
+                        //printf("Criando escopo PROGRAMA como subescopo de programa\n");
                         noAtual = searchScope(scopeTree,"programa");
-                        newNode = createScope("PROGRAMA");
+                        newNode = createScope("PROGRAMA",NULL,tree);
                         if(newNode != NULL) insertChild(noAtual,newNode);
                   }
                   escopoAtual="PROGRAMA";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Se:
-                  printf("Criando escopo Se como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("Se");
+                  //printf("Criando escopo Se como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("Se",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   escopoAtual="Se";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case SeSenao:
-                  printf("Criando escopo SeSenao como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("SeSenao");
+                  //printf("Criando escopo SeSenao como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("SeSenao",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   escopoAtual="SeSenao";
                   noAtual = newNode;
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
             case Enquanto:
-                  printf("Criando escopo Enquanto como subescopo de %s\n",escopoAtual);
-                  newNode = createScope("Enquanto");
+                  //printf("Criando escopo Enquanto como subescopo de %s\n",escopoAtual);
+                  newNode = createScope("Enquanto",NULL,tree);
                   if(newNode != NULL) insertChild(noAtual,newNode);
                   noAtual = newNode;
                   escopoAtual="Enquanto";
-                  printf("Atualizando escopo para %s\n",escopoAtual);
+                  //printf("Atualizando escopo para %s\n",escopoAtual);
                   break;
         }
-          
-        createScopeTree(tree->first,escopoAtual,noAtual);
-        createScopeTree(tree->second,escopoAtual,noAtual);
-        createScopeTree(tree->third,escopoAtual,noAtual);
+
+      symbolTable *novoNode;
+      switch(tree->type){
+            case DeclFuncVar1:
+            case DeclFuncVar2:
+            case ListaDeclVar2:
+            case ListaDeclVar3:
+                  tipoAtual = tree->first->token;
+                  //printf("ListaDeclVar2ou3 %s\n",tipoAtual);
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                        
+                  }
+                  else{
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line-1);
+                        exit(1);       
+                  }
+                  break;
+            case DeclVar1: 
+            case DeclVar2:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  else{
+                        printf("ERRO SEMANTICO: VARIAVEL %s DECLARADA NO ESCOPO DO PARAMETRO DE MESMO NOME LINHA %d\n", tree->token,tree->line);
+                        exit(1);    
+                  }
+                  break;
+            case ListaParametrosCont1:
+            case ListaParametrosCont2:
+            case ListaParametrosCont3:
+            case ListaParametrosCont4:
+                  tipoAtual = tree->first->token;
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,tipoAtual)==NULL){
+                        novoNode = createSymbolNode(tree->token,tree->line,tipoAtual,tree,1);
+                        noAtual->nTable++;
+                        noAtual->table[noAtual->nTable] = novoNode;
+                        //("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                        
+                  }
+                  break;
+            case IdentificadorBEB:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"[]")==NULL){
+                              novoNode = createSymbolNode(tree->token,tree->line,"[]",tree,0);
+                              noAtual->nTable++;
+                              noAtual->table[noAtual->nTable] = novoNode;
+                              //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  break;
+            case Identificador:
+                  if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"var")==NULL){
+                              novoNode = createSymbolNode(tree->token,tree->line,"var",tree,0);
+                              noAtual->nTable++;
+                              noAtual->table[noAtual->nTable] = novoNode;
+                              //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+                  }
+                  break;
+            case IdentificadorLista:
+            if(searchSymbol(noAtual->table,noAtual->nTable,tree->token,"()")==NULL){
+                  novoNode = createSymbolNode(tree->token,tree->line,"()",tree,0);
+                  noAtual->nTable++;
+                  noAtual->table[noAtual->nTable] = novoNode;
+                  //printf("TOKEN %s SIZE TABLE %d\n", noAtual->table[noAtual->nTable]->token,noAtual->nTable);
+            }
+            break;
+      }
+      /*("ESCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPE ");
+      printTable(noAtual->table,noAtual->nTable);
+      printf("\n\n");*/
+      createScopeTree(tree->first,escopoAtual,noAtual,tipoAtual);
+      createScopeTree(tree->second,escopoAtual,noAtual,tipoAtual);
+      createScopeTree(tree->third,escopoAtual,noAtual,tipoAtual);
  }
 
  char *convert2Str(int x){
@@ -2359,8 +2477,11 @@ char *newName(char *token){
       //printf("NEWNAME3 ");
       for(it = 0; it < token_size;it++){
             if(!isalnum(token[(int)it])){
-                  //printf("NEWNAME4 ");
                   pos = it;
+                  if(token[pos] == '['){
+                         while(token[pos] != ']') pos++;
+                        pos++;
+                  }
                   break;
             }
       }
@@ -2372,70 +2493,72 @@ char *newName(char *token){
       }
       return token;
 }
-symbolTable *initTable(char *token, int line, char *type, node *astPointer){
-    symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
-    newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
-    strcpy(newnode->token,token);
-    newnode->line = line;
-    newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
-    strcpy(newnode->type,type);
-    newnode->astPointer = astPointer;
-    newnode->next = NULL;
-    return newnode;
-}
 
-void insertSymbol(symbolTable *table, char *token, int line, char *type, node *astPointer){
-    if(table == NULL){
-        table = initTable(token,line,type,astPointer);
-        return;
-    }
-    symbolTable *aux, *auxNext = table;
-    while(auxNext != NULL){
-        aux = auxNext;
-        auxNext = auxNext->next;
-        if(auxNext == NULL) break;
-    }
-    if(aux == NULL) { printf("ERRO: INSERCAO FALIDA\n"); return;}
-    symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
-    newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
-    strcpy(newnode->token,token);
-    newnode->line = line;
-    newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
-    strcpy(newnode->type,type);
-    newnode->astPointer = astPointer;
-    newnode->next = NULL;
-    aux->next = newnode;
-    return;
-}
-
-int searchSymbol(symbolTable *table, char *token){
-    if(table == NULL) return 0;
-    symbolTable *it,*aux;
-    while(it != NULL){
-        if(it == NULL) break;
-        if(strcmp(it->token,token)==0){
-            return 1;
-            break;
-        }
-        it = it->next;
-    }
-    return 0;
+char *alphaNum(char *token){
+      if(token == NULL) return NULL;
+      //printf("NEWNAME ");
+      int it, token_size,pos;
+      token_size = strlen(token);
+     // printf("NEWNAME2 ");
+      pos = 0;
+      char *aux = (char *)malloc(sizeof(char)*(strlen(token)+1));
+      //printf("NEWNAME3 ");
+      for(it = 0; it < token_size;it++){
+            if(!isalnum(token[(int)it])){
+                  pos = it;
+                  break;
+            }
+      }
+      if(pos){
+            for(it = 0; it < pos; it++){
+                  aux[it] = token[it];
+            }
+            return aux;
+      }
+      return token;
 }
 
 //symbolTable operations end
 
 //symbolTree operations
 
-symbolTree *createScope(char *scope){
+symbolTree *createScope(char *scope, char *type, node *astPointer){
     symbolTree *newnode = (symbolTree *)malloc(sizeof(symbolTree));
     newnode->nChild = 0;
+    newnode->nTable = 0;
     newnode->childs = (symbolTree **)malloc(sizeof(symbolTree *));
-    newnode->table = NULL;
     newnode->scope = (char *)malloc(sizeof(char)*(strlen(scope)+1));
-    //printf("scope be4 %s", scope);
     strcpy(newnode->scope,scope);
+    newnode->table = (symbolTable **)malloc(sizeof(symbolTable *)*2);
+    newnode->table[0] = (symbolTable *)malloc(sizeof(symbolTable));
+    newnode->table[1] = (symbolTable *)malloc(sizeof(symbolTable));
+    if(type != NULL){
+      newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
+      strcpy(newnode->type,type);
+    }
+    newnode->astPointer = astPointer;
     //printf("scope after %s", newnode->scope);
     return newnode;
+}
+
+symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,int decl){
+      symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
+      newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
+      strcpy(newnode->token,token);
+      newnode->type = (char *)malloc(sizeof(char)*(strlen(type)+1));
+      strcpy(newnode->type,type);
+      newnode->line = line;
+      newnode->astPointer = astPointer;
+      newnode->decl = decl;
+      return newnode;   
+}
+symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *type){
+      if(table == NULL) return NULL;
+      int i;
+      for(i = 1; i <= t_size;i++){
+            if(strcmp(table[i]->token,token) == 0 && strcmp(table[i]->type,type)==0) return table[i];
+      }
+      return NULL;
 }
 
 symbolTree *searchScope(symbolTree *tree, char *scope){
@@ -2449,18 +2572,153 @@ symbolTree *searchScope(symbolTree *tree, char *scope){
       return retorn;
 }
 
-void insertOnScope(symbolTree *tree,char *scope,char *token, int line, char *type, node *astPointer){
-    if(tree == NULL){
-        tree = createScope(scope);
-        if(token != NULL) insertSymbol(tree->table,token,line,type,astPointer);
-        return;
-    }
-    symbolTree *node = searchScope(tree,scope);
-    if(node != NULL) insertSymbol(node->table,token,line,type,astPointer);
-    else{
-        tree->nChild++;
-        insertOnScope(&tree->childs[tree->nChild-1],scope,token,line,type,astPointer);
-    }
-    return;
+void propagarType(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            assignTypes(tree,tree->table[i]);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            propagarType(tree->childs[i]);
+      }
+}
+char StringAux[100];
+void assignTypes(symbolTree *tree, symbolTable *symbol){
+      if(tree == NULL) return;
+      /* casos: []
+      *         ()
+      *         var
+      */ 
+      int i,j;
+      int pos=0;
+      for(i = 0; i < strlen(symbol->token); i++){
+            if(!isalnum(symbol->token[i])){
+                  pos = i;
+                  break;
+            }
+      }
+      if(pos){
+            //printf("ENTEI");
+            strcpy(StringAux,symbol->type);
+            strcpy(StringAux,alphaNum(StringAux));
+            if(symbol->token[pos] == '['){
+                  strcat(StringAux,"[]");
+                  //printf("%s\n",symbol->type);
+                  strcpy(symbol->type,StringAux);
+            }
+            else if(symbol->token[pos] == '('){
+                  strcat(StringAux,"()");
+                  //printf("%s\n",symbol->type);
+                  strcpy(symbol->type,StringAux);
+            }
+      }
+      for(i = 1; i <= tree->nTable;i++){
+            if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
+                  strcpy(StringAux, symbol->type);
+                  if(strcmp(tree->table[i]->type,"[]")==0){
+                        strcpy(tree->table[i]->token, alphaNum(tree->table[i]->token));
+                        //printf("AQUI1 %s\n\n", tree->table[i]->token);
+                        //strcat(StringAux,"[]");
+                        strcpy(tree->table[i]->type,StringAux); 
+                  }
+                  else if(strcmp(tree->table[i]->type,"var")==0){
+                        //printf("AQUI3");
+                        strcpy(tree->table[i]->type,StringAux);
+                  }
+                  else{
+                        if(strcmp(tree->table[i]->type,symbol->type)!=0)
+                              printf("ERRO SEMANTICO: VARIAVEIS DE TIPOS DISTINTOS COM MESMO NOME LINHA %d",tree->table[i]->line);
+                  }
+            }
+      }
+      strcpy(symbol->token, alphaNum(symbol->token));
+
+
+      for(i = 0; i < tree->nChild; i++){
+            assignTypes(tree->childs[i],symbol);
+      }
 }
 
+void procurarDeclaracoes(symbolTree *tree){
+      if(tree == NULL) return;
+      int i;
+      for(i = 1; i <= tree->nTable; i++){
+            BuscaEmProfundidade(tree,tree->table[i]);
+      }
+      for(i = 0; i < tree->nChild; i++){
+            procurarDeclaracoes(tree->childs[i]);
+      }
+}
+
+void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol){
+      if(tree == NULL) return;
+      /* casos: []
+      *         ()
+      *         var
+      */ 
+      int i,j;
+      
+      for(i = 1; i <= tree->nTable;i++){
+            if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
+                  if(strcmp(tree->table[i]->type,"[]")==0 ||strcmp(tree->table[i]->type,"var")==0){
+                        printf("ERRO SEMANTICO: VARIAVEL %s NAO DECLARADA LINHA %d\n", tree->table[i]->token,tree->table[i]->line);
+                        exit(1);
+                  }
+                  //printf("%d %p\t%d %p\n", symbol->decl,symbol->astPointer,tree->table[i]->decl,tree->table[i]->astPointer);
+            }
+      }
+
+
+      for(i = 0; i < tree->nChild; i++){
+            BuscaEmProfundidade(tree->childs[i],symbol);
+      }
+}
+
+void getReturnNode(node *tree, char *funcReturn){
+      if(tree == NULL) return; 
+      switch(tree->type){
+            case Retorne:
+                  //printf("Retorne %s", enumStrings[(int)tree->first->type]);
+                  switch(tree->first->type){
+                        case Mais:
+                        case Menos:
+                        case Vezes:
+                        case Divisao:
+                        case Resto:
+                        case Negativo:
+                        case Intconst:
+                              if(strcmp(funcReturn,"int")!=0){
+                                    printf("ERRO SEMANTICO: EXPRESSAO TEM TIPO INCOMPATIVEL COM RETORNO DA FUNCAO NA LINHA %d\n", tree->line);
+                                    exit(1);
+                              }
+                              break;
+                        case Carconst:
+                              if(strcmp(funcReturn,"car")!=0){
+                                    printf("ERRO SEMANTICO: EXPRESSAO TEM TIPO INCOMPATIVEL COM RETORNO DA FUNCAO NA LINHA %d\n", tree->line);
+                                    exit(1);
+                              }
+                              break;
+
+                  }
+                  break;
+            default:      
+                  break;
+      }
+      getReturnNode(tree->first,funcReturn);
+      getReturnNode(tree->second,funcReturn);
+      getReturnNode(tree->third,funcReturn);
+}
+
+void checkReturn(symbolTree *tree){
+      if(tree == NULL) return;
+      node *returnNode;
+      if(tree->type != NULL){
+            //printf("tipo funcao %s\n", tree->type);
+            getReturnNode(tree->astPointer,tree->type);
+      }
+      int i;
+      for(i = 0; i < tree->nChild;i++){
+            checkReturn(tree->childs[i]);
+      }
+
+}

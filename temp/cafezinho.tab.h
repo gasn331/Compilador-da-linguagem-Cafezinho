@@ -82,10 +82,10 @@ extern int yydebug;
     SEMI = 292,
     VIRGULA = 293,
     ATRIB = 294,
-    ID = 295,
-    INTCONST = 296,
-    CARCONST = 297,
-    STRING = 298
+    INTCONST = 295,
+    CARCONST = 296,
+    STRING = 297,
+    ID = 298
   };
 #endif
 
@@ -94,7 +94,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 32 "./fonte/cafezinho.y" /* yacc.c:1909  */
+#line 40 "./fonte/cafezinho.y" /* yacc.c:1909  */
 
         int lineno;
         char *string;

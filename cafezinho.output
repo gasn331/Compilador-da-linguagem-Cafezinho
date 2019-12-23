@@ -146,10 +146,10 @@ DBRACE (291) 17 18
 SEMI (292) 2 3 20 21 26 27 28 29 30 31 32
 VIRGULA (293) 7 8 15 16 74
 ATRIB (294) 39
-ID (295) 2 3 4 7 8 13 14 15 16 20 21 64 65 66 67 68 69
-INTCONST (296) 3 8 21 71
-CARCONST (297) 70
-STRING (298) 31
+INTCONST (295) 3 8 21 71
+CARCONST (296) 70
+STRING (297) 31
+ID (298) 2 3 4 7 8 13 14 15 16 20 21 64 65 66 67 68 69
 
 
 Não terminais com as regras onde eles aparecem
@@ -388,9 +388,9 @@ Estado 17
     EBRACE     deslocar, e ir ao estado 10
     DBRACE     deslocar, e ir ao estado 35
     SEMI       deslocar, e ir ao estado 36
-    ID         deslocar, e ir ao estado 37
-    INTCONST   deslocar, e ir ao estado 38
-    CARCONST   deslocar, e ir ao estado 39
+    INTCONST   deslocar, e ir ao estado 37
+    CARCONST   deslocar, e ir ao estado 38
+    ID         deslocar, e ir ao estado 39
 
     Bloco         ir ao estado 40
     ListaComando  ir ao estado 41
@@ -488,9 +488,9 @@ Estado 26
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 62
     AssignExpr  ir ao estado 44
@@ -523,10 +523,10 @@ Estado 28
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     STRING    deslocar, e ir ao estado 65
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 66
     AssignExpr  ir ao estado 44
@@ -569,9 +569,9 @@ Estado 32
    61 UnExpr: MENOS . PrimExpr
 
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     PrimExpr  ir ao estado 71
 
@@ -581,9 +581,9 @@ Estado 33
    62 UnExpr: ANULEXPR . PrimExpr
 
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     PrimExpr  ir ao estado 72
 
@@ -595,9 +595,9 @@ Estado 34
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 73
     AssignExpr  ir ao estado 44
@@ -629,6 +629,20 @@ Estado 36
 
 Estado 37
 
+   71 PrimExpr: INTCONST .
+
+    $padrão  reduzir usando a regra 71 (PrimExpr)
+
+
+Estado 38
+
+   70 PrimExpr: CARCONST .
+
+    $padrão  reduzir usando a regra 70 (PrimExpr)
+
+
+Estado 39
+
    64 LValueExpr: ID . EBRACK Expr DBRACK
    65           | ID .
    66 PrimExpr: ID . EPAREN ListExpr DPAREN
@@ -641,20 +655,6 @@ Estado 37
 
     ATRIB     reduzir usando a regra 65 (LValueExpr)
     $padrão  reduzir usando a regra 69 (PrimExpr)
-
-
-Estado 38
-
-   71 PrimExpr: INTCONST .
-
-    $padrão  reduzir usando a regra 71 (PrimExpr)
-
-
-Estado 39
-
-   70 PrimExpr: CARCONST .
-
-    $padrão  reduzir usando a regra 70 (PrimExpr)
 
 
 Estado 40
@@ -687,9 +687,9 @@ Estado 42
     EPAREN     deslocar, e ir ao estado 34
     EBRACE     deslocar, e ir ao estado 10
     SEMI       deslocar, e ir ao estado 36
-    ID         deslocar, e ir ao estado 37
-    INTCONST   deslocar, e ir ao estado 38
-    CARCONST   deslocar, e ir ao estado 39
+    INTCONST   deslocar, e ir ao estado 37
+    CARCONST   deslocar, e ir ao estado 38
+    ID         deslocar, e ir ao estado 39
 
     $padrão  reduzir usando a regra 24 (ListaComando)
 
@@ -948,9 +948,9 @@ Estado 68
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 106
     AssignExpr  ir ao estado 44
@@ -973,9 +973,9 @@ Estado 69
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 107
     AssignExpr  ir ao estado 44
@@ -1034,9 +1034,9 @@ Estado 74
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
     DPAREN    deslocar, e ir ao estado 110
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     AssignExpr  ir ao estado 111
     CondExpr    ir ao estado 45
@@ -1060,9 +1060,9 @@ Estado 75
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 113
     AssignExpr  ir ao estado 44
@@ -1106,9 +1106,9 @@ Estado 79
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     AndExpr    ir ao estado 114
     EqExpr     ir ao estado 48
@@ -1126,9 +1126,9 @@ Estado 80
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 115
     AssignExpr  ir ao estado 44
@@ -1151,9 +1151,9 @@ Estado 81
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     EqExpr     ir ao estado 116
     DesigExpr  ir ao estado 49
@@ -1170,9 +1170,9 @@ Estado 82
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     DesigExpr  ir ao estado 117
     AddExpr    ir ao estado 50
@@ -1188,9 +1188,9 @@ Estado 83
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     DesigExpr  ir ao estado 118
     AddExpr    ir ao estado 50
@@ -1206,9 +1206,9 @@ Estado 84
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     AddExpr   ir ao estado 119
     MulExpr   ir ao estado 51
@@ -1223,9 +1223,9 @@ Estado 85
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     AddExpr   ir ao estado 120
     MulExpr   ir ao estado 51
@@ -1240,9 +1240,9 @@ Estado 86
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     AddExpr   ir ao estado 121
     MulExpr   ir ao estado 51
@@ -1257,9 +1257,9 @@ Estado 87
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     AddExpr   ir ao estado 122
     MulExpr   ir ao estado 51
@@ -1274,9 +1274,9 @@ Estado 88
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     MulExpr   ir ao estado 123
     UnExpr    ir ao estado 52
@@ -1290,9 +1290,9 @@ Estado 89
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     MulExpr   ir ao estado 124
     UnExpr    ir ao estado 52
@@ -1306,9 +1306,9 @@ Estado 90
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     UnExpr    ir ao estado 125
     PrimExpr  ir ao estado 54
@@ -1321,9 +1321,9 @@ Estado 91
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     UnExpr    ir ao estado 126
     PrimExpr  ir ao estado 54
@@ -1336,9 +1336,9 @@ Estado 92
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     UnExpr    ir ao estado 127
     PrimExpr  ir ao estado 54
@@ -1351,9 +1351,9 @@ Estado 93
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     AssignExpr  ir ao estado 128
     CondExpr    ir ao estado 45
@@ -1436,9 +1436,9 @@ Estado 102
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 135
     AssignExpr  ir ao estado 44
@@ -1497,9 +1497,9 @@ Estado 108
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     Expr        ir ao estado 138
     AssignExpr  ir ao estado 44
@@ -1822,9 +1822,9 @@ Estado 140
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
-    ID        deslocar, e ir ao estado 37
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
+    ID        deslocar, e ir ao estado 39
 
     AssignExpr  ir ao estado 152
     CondExpr    ir ao estado 45
@@ -1855,9 +1855,9 @@ Estado 142
     MENOS     deslocar, e ir ao estado 32
     ANULEXPR  deslocar, e ir ao estado 33
     EPAREN    deslocar, e ir ao estado 34
+    INTCONST  deslocar, e ir ao estado 37
+    CARCONST  deslocar, e ir ao estado 38
     ID        deslocar, e ir ao estado 70
-    INTCONST  deslocar, e ir ao estado 38
-    CARCONST  deslocar, e ir ao estado 39
 
     CondExpr   ir ao estado 153
     OrExpr     ir ao estado 46
@@ -1936,9 +1936,9 @@ Estado 149
     EPAREN     deslocar, e ir ao estado 34
     EBRACE     deslocar, e ir ao estado 10
     SEMI       deslocar, e ir ao estado 36
-    ID         deslocar, e ir ao estado 37
-    INTCONST   deslocar, e ir ao estado 38
-    CARCONST   deslocar, e ir ao estado 39
+    INTCONST   deslocar, e ir ao estado 37
+    CARCONST   deslocar, e ir ao estado 38
+    ID         deslocar, e ir ao estado 39
 
     Bloco       ir ao estado 40
     Comando     ir ao estado 156
@@ -1971,9 +1971,9 @@ Estado 150
     EPAREN     deslocar, e ir ao estado 34
     EBRACE     deslocar, e ir ao estado 10
     SEMI       deslocar, e ir ao estado 36
-    ID         deslocar, e ir ao estado 37
-    INTCONST   deslocar, e ir ao estado 38
-    CARCONST   deslocar, e ir ao estado 39
+    INTCONST   deslocar, e ir ao estado 37
+    CARCONST   deslocar, e ir ao estado 38
+    ID         deslocar, e ir ao estado 39
 
     Bloco       ir ao estado 40
     Comando     ir ao estado 157
@@ -2072,9 +2072,9 @@ Estado 159
     EPAREN     deslocar, e ir ao estado 34
     EBRACE     deslocar, e ir ao estado 10
     SEMI       deslocar, e ir ao estado 36
-    ID         deslocar, e ir ao estado 37
-    INTCONST   deslocar, e ir ao estado 38
-    CARCONST   deslocar, e ir ao estado 39
+    INTCONST   deslocar, e ir ao estado 37
+    CARCONST   deslocar, e ir ao estado 38
+    ID         deslocar, e ir ao estado 39
 
     Bloco       ir ao estado 40
     Comando     ir ao estado 161
