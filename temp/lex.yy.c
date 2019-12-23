@@ -367,11 +367,11 @@ static const flex_int16_t yy_accept[175] =
        16,   39,   28,   35,   24,   37,   23,   27,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   32,   31,   38,
        19,   38,   38,   38,   38,   38,   38,   38,   33,   34,
-       45,   47,   54,   51,   52,   50,   54,   43,   22,    0,
+       45,   47,   54,   50,   51,   50,   54,   43,   22,    0,
        41,    0,   44,   39,   26,   21,   25,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   38,    8,   38,
        38,   38,   38,   38,   38,   38,   18,   38,   38,    8,
-       45,   46,   46,   48,   51,   40,    3,   38,   38,   38,
+       45,   46,   46,   48,   50,   40,    3,   38,   38,   38,
 
        38,    2,   38,   38,   38,   38,   38,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   38,   38,   38,
@@ -1141,7 +1141,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case YY_STATE_EOF(ML_COMMENT):
 #line 74 "./fonte/cafezinho.l"
-{yyerror("ERRO: COMENTARIO NAO TERMINA");}
+{yyerror("COMENTARIO NAO TERMINA");}
 	YY_BREAK
 case 47:
 /* rule 47 can match eol */
@@ -1156,38 +1156,41 @@ BEGIN(INITIAL);
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 78 "./fonte/cafezinho.l"
+#line 79 "./fonte/cafezinho.l"
 { BEGIN(ML_STRING); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 79 "./fonte/cafezinho.l"
-{ BEGIN(INITIAL); }
-	YY_BREAK
-case 51:
-YY_RULE_SETUP
 #line 80 "./fonte/cafezinho.l"
 
 	YY_BREAK
-case 52:
-/* rule 52 can match eol */
+case 51:
+/* rule 51 can match eol */
 YY_RULE_SETUP
 #line 81 "./fonte/cafezinho.l"
-{ yyerror("STRING MULTILINHA"); yylineno += 1; }
+{ yyerror("CADEIA MULTILINHA"); yylineno += 1; }
+	YY_BREAK
+case YY_STATE_EOF(ML_STRING):
+#line 82 "./fonte/cafezinho.l"
+{yyerror("CADEIA NAO TERMINA");}
+	YY_BREAK
+case 52:
+YY_RULE_SETUP
+#line 83 "./fonte/cafezinho.l"
+{ BEGIN(INITIAL); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 83 "./fonte/cafezinho.l"
+#line 86 "./fonte/cafezinho.l"
 { yyerror("CARACTER INVALIDO"); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 84 "./fonte/cafezinho.l"
+#line 87 "./fonte/cafezinho.l"
 ECHO;
 	YY_BREAK
-#line 1189 "lex.yy.c"
+#line 1193 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(ML_STRING):
 	yyterminate();
 
 	case YY_END_OF_BUFFER:
@@ -2191,7 +2194,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 84 "./fonte/cafezinho.l"
+#line 87 "./fonte/cafezinho.l"
 
 
 void print(char *token_type){

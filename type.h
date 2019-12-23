@@ -8,11 +8,15 @@ EscrevaString,Novalinha,Se,SeSenao,Enquanto,Atribuir,SeTernario,Or,And,IgualIgua
 Maior,MenorIg,MaiorIg,Mais,Menos,Vezes,Divisao,Resto,Negativo,Negacao,IdentificadorBEB,Identificador,
 IdentificadorLista,Carconst,Intconst,Virgula,Main,DeclVar1,DeclVar2,ListaParametrosCont1,ListaParametrosCont2,ListaParametros2}Operator;
 
+/*
+      * Estrutura param utilizada para armazenar os parâmetros encontrados em uma chamada de função
+      * e compará-los com o protótipo da função para análise semântica.
+*/
 typedef struct param{
     int t_size;
     char **variables;
 }param;
-//definicao de um no da arvore de sintaxe abstrata
+//definicao de um no da arvore de sintaxe abstrata ternária
 typedef struct node{ 
         Operator type;
         int line;
@@ -21,8 +25,10 @@ typedef struct node{
         struct node *third;
         char *token;
 }node;
-
-//IDEA: Cada nó de uma árvore de escopos armazena uma tabela de símbolos representando aquele escopo.
+/*
+      * tabela de símbolos symbolTable, cada posição da tabela contém o token de um símbolo,
+      * sua linha, seu tipo, se corresponde à uma declaração ou não e um ponteiro para seu nó na AST
+*/
 typedef struct symbolTable{
     char *token;
     int line; //talvez
@@ -30,6 +36,12 @@ typedef struct symbolTable{
     int decl;
     struct node *astPointer;
 }symbolTable;
+/*
+      * arvore de escopos symbolTree, cada nó da árvore tem um escopo atribuído, portanto, os nós filhos
+      * são os escopos aninhados à um escopo. Além disso, cada escopo contém uma tabela de símbolos, symbolTable
+      * que contém os respectivos símbolos de um escopo.
+*/
+      
 typedef struct symbolTree{
     char* scope;
     char*type;

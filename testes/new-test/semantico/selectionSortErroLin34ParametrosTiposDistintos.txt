@@ -30,8 +30,7 @@ programa{
 	leia vet[i];
 	i=i+1;
    } 
-   selectionSort(vet, 10); /*vetor car sendo passado como argumento
-                                          para parametro que e um vetor de int*/
+   selectionSort(vet, 10); /*vetor car sendo passado como argumento                                          para parametro que e um vetor de int*/
    escreva "Vetor ordenado: ";
    novalinha;
    i=0;

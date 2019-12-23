@@ -71,14 +71,17 @@ STRING		\"([^"]*)\"
 "/*"		    BEGIN(ML_COMMENT);
 <ML_COMMENT>[^*\n]*
 <ML_COMMENT>"*"+[^/\n]  
-<ML_COMMENT><<EOF>> {yyerror("ERRO: COMENTARIO NAO TERMINA");}
+<ML_COMMENT><<EOF>> {yyerror("COMENTARIO NAO TERMINA");}
 <ML_COMMENT>\n yylineno++;    
 <ML_COMMENT>"*"+"/"    BEGIN(INITIAL);
+
 
 "\""		{ BEGIN(ML_STRING); }
 <ML_STRING>"\"" 	{ BEGIN(INITIAL); }
 <ML_STRING>[^*\n]+					
-<ML_STRING>"\n"	{ yyerror("STRING MULTILINHA"); yylineno += 1; }
+<ML_STRING>\n	{ yyerror("CADEIA MULTILINHA"); yylineno += 1; }
+<ML_STRING><<EOF>> {yyerror("CADEIA NAO TERMINA");}
+
 
 .		   { yyerror("CARACTER INVALIDO"); }
 %%

@@ -2086,22 +2086,29 @@ main(){
                 yydebug = 1;
         #endif
 	yyparse();
-      //printtree(tree);
-      fflush(stdin);
-      //printf("\n");
-      scopeTree = createScope("programa",NULL,tree);
+      //printtree(tree); //funcao para imprimir a arvore de sintaxe abstrata
+      //printScopeTree(scopeTree); //funcao para imprimir arvore de scopos
+      fflush(stdin); 
+      /*
+            Criacao da arovre de escopos
+      */
+      scopeTree = createScope("programa",NULL,tree); //
       createScopeTree(tree, "programa", scopeTree, "NOTYPE");
-      propagarType(scopeTree);      
-      procurarDeclaracoes(scopeTree); 
-      //printScopeTree(scopeTree);
-      checkReturn(scopeTree);
-      BuscaChamadas(scopeTree, scopeTree);
-      //printf("\n");     
-}
+      /* ******************************************** */
 
+      /*
+            Análise semântica
+      */
+      propagarType(scopeTree); //propaga para os nós filhos o tipo de uma variável declarada      
+      procurarDeclaracoes(scopeTree); //procura por declaracoes de nome igual a algum parametro do mesmo escopo
+      checkReturn(scopeTree); //compara o retorno da funcao com uma chamada de retorno interna
+      BuscaChamadas(scopeTree, scopeTree); //procura chamadas de função e faz tratamento de erros
+      /* ******************************************** */     
+}
+/*
+      Criacao de um nó da AST
+*/
 node *mknode(Operator type, int line, node *first, node *second, node *third, char *token){
-       // printf("MAKE NEW NODE");
-        //printf("TRYING TO SAVE: %s %d\n", enumStrings[(int)type],line);
         node *newnode = (node *)malloc(sizeof(node));
         if(newnode == NULL) return NULL;
         newnode->type = type;
@@ -2109,16 +2116,16 @@ node *mknode(Operator type, int line, node *first, node *second, node *third, ch
         newnode->first = first;
         newnode->second = second;
         newnode->third = third;
-        //printf("TRYING TO SAVE: %s %d\n", enumStrings[(int)type],line);
-        //if(!token) printf("TOKEN NULL\n");
         if(token != NULL){
                newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
                strcpy(newnode->token,token); 
         }
         else newnode->token = NULL;
-        //printf("WILL RETURN NOW\n");
         return newnode;
 }
+/*
+      Impressao da AST
+*/
 void printtree(node *tree) {
       //printf("PRINTING TREE\n");
       if(tree == NULL) return;
@@ -2283,6 +2290,9 @@ void printtree(node *tree) {
         printf(")");
  }
 
+/*
+      Impressao de uma tabela de símbolos
+*/
  void printTable(symbolTable **table, int t_size){
       if(table == NULL) return;
       int i;
@@ -2291,6 +2301,10 @@ void printtree(node *tree) {
       }
  }
 
+/*
+/*
+      Impressao da arvore de escopos
+*/
 void printScopeTree(symbolTree *tree){
       if(tree == NULL){
             printf("ERROR: SymbolTree NULL\n");
@@ -2309,6 +2323,9 @@ void printScopeTree(symbolTree *tree){
       printf(")");
 }
 
+/*
+      Insercao de um nó filho em um escopo
+*/
 void insertChild(symbolTree *tree, symbolTree *newNode){
       if(tree == NULL) return;
       //printf("got here %s\n", newNode->scope);
@@ -2320,6 +2337,10 @@ void insertChild(symbolTree *tree, symbolTree *newNode){
       return; 
 }
 
+/*
+      createScopeTree percorre a AST construindo uma árvore de escopos baseado nas funções
+      e declaração de programa; em seguida, são construídas as tabelas de símbolo de cada escopo
+*/
 void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char tipoAtual[100]) {
         //printf("Creating Tree....\n");
         symbolTree *nodeAux, *newNode;
@@ -2482,21 +2503,24 @@ void createScopeTree(node *tree, char escopoAtual[100], symbolTree *noAtual,char
             }
             break;
       }
-      /*("ESCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPE ");
-      printTable(noAtual->table,noAtual->nTable);
-      printf("\n\n");*/
       createScopeTree(tree->first,escopoAtual,noAtual,tipoAtual);
       createScopeTree(tree->second,escopoAtual,noAtual,tipoAtual);
       createScopeTree(tree->third,escopoAtual,noAtual,tipoAtual);
  }
 
+/*
+      função auxiliar para converter um int para string
+*/
  char *convert2Str(int x){
         int length = snprintf( NULL, 0, "%d", x );
         char* str = malloc( length + 1 );
         snprintf( str, length + 1, "%d", x );
         return str;
 }
-
+/*
+      newName e alphaNum fazem correções nos nomes dos tokens de acordo com a necessidade,
+      para armazenar os tipos de váriáveis car[] e int[]
+*/
 char *newName(char *token){
       if(token == NULL) return NULL;
       //printf("NEWNAME ");
@@ -2549,10 +2573,9 @@ char *alphaNum(char *token){
       return token;
 }
 
-//symbolTable operations end
-
-//symbolTree operations
-
+/*
+      criação de um nó da árvore de escopos
+*/
 symbolTree *createScope(char *scope, char *type, node *astPointer){
     symbolTree *newnode = (symbolTree *)malloc(sizeof(symbolTree));
     newnode->nChild = 0;
@@ -2574,6 +2597,9 @@ symbolTree *createScope(char *scope, char *type, node *astPointer){
     return newnode;
 }
 
+/*
+      criação de um nó da árvore de símbolos
+*/
 symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,int decl){
       symbolTable *newnode = (symbolTable *)malloc(sizeof(symbolTable));
       newnode->token = (char *)malloc(sizeof(char)*(strlen(token)+1));
@@ -2585,6 +2611,9 @@ symbolTable *createSymbolNode(char *token,int *line,char *type,node *astPointer,
       newnode->decl = decl;
       return newnode;   
 }
+/*
+      Busca um símbolo em uma tabela de símbolos
+*/
 symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *type){
       if(table == NULL) return NULL;
       int i;
@@ -2593,7 +2622,9 @@ symbolTable *searchSymbol(symbolTable **table, int t_size, char *token,char *typ
       }
       return NULL;
 }
-
+/*
+      Busca um escopo baseado em seu identificador
+*/
 symbolTree *searchScope(symbolTree *tree, char *scope){
       if(tree == NULL){ return NULL;}
       if(strcmp(tree->scope,scope) == 0) {return tree;}
@@ -2602,6 +2633,10 @@ symbolTree *searchScope(symbolTree *tree, char *scope){
       for(i = 0; i < tree->nChild; i++) 
             return searchScope(tree->childs[i],scope);
 }
+
+/*
+      Propagar tipos de variáveis declaradas para os nós filhos
+*/
 
 void propagarType(symbolTree *tree){
       if(tree == NULL) return;
@@ -2613,6 +2648,10 @@ void propagarType(symbolTree *tree){
             propagarType(tree->childs[i]);
       }
 }
+
+/*
+     Altera os tipos das variáveis para seus tipos apropriados a partir da propagação dos tipos
+*/
 void assignTypes(symbolTree *tree, symbolTable *symbol){
       if(tree == NULL) return;
       /* casos: []
@@ -2635,12 +2674,7 @@ void assignTypes(symbolTree *tree, symbolTable *symbol){
                   strcat(StringAux,"[]");
                   //printf("%s\n",symbol->type);
                   strcpy(symbol->type,StringAux);
-            }/*
-            else if(symbol->token[pos] == '('){
-                  strcat(StringAux,"()");
-                  //printf("%s\n",symbol->type);
-                  strcpy(symbol->type,StringAux);
-            }*/
+            }
       }
       for(i = 1; i <= tree->nTable;i++){
             if(strcmp(alphaNum(symbol->token),alphaNum(tree->table[i]->token))==0){
@@ -2669,6 +2703,9 @@ void assignTypes(symbolTree *tree, symbolTable *symbol){
       }
 }
 
+/*
+      Procura por declarações de variável com o mesmo nome de parâmetros de função do mesmo escopo
+*/
 void procurarDeclaracoes(symbolTree *tree){
       if(tree == NULL) return;
       int i;
@@ -2680,6 +2717,9 @@ void procurarDeclaracoes(symbolTree *tree){
       }
 }
 
+/*
+      Percorre a árvore de escopos em profundidade e detecta erros semânticos de variáveis não declaradas
+*/
 void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol){
       if(tree == NULL) return;
       /* casos: []
@@ -2703,6 +2743,10 @@ void BuscaEmProfundidade(symbolTree *tree, symbolTable *symbol){
             BuscaEmProfundidade(tree->childs[i],symbol);
       }
 }
+
+/*
+      Compara o tipo do retorno com a variável retornada, lançando um erro semântico em caso de divergência
+*/
 
 void getReturnNode(node *tree, char *funcReturn){
       if(tree == NULL) return; 
@@ -2739,6 +2783,9 @@ void getReturnNode(node *tree, char *funcReturn){
       getReturnNode(tree->third,funcReturn);
 }
 
+/*
+      auxilia a função getReturnNode 
+*/
 void checkReturn(symbolTree *tree){
       if(tree == NULL) return;
       node *returnNode;
@@ -2752,7 +2799,9 @@ void checkReturn(symbolTree *tree){
       }
 
 }
-
+/*
+      Percorre uma subárvore da AST para contar a quantidade de parâmetros e retornar seus tipos
+*/
 void PercorreSubArvore(node *tree, param *Vars){
       if(tree == NULL) return;
       int bb = 0; 
@@ -2788,16 +2837,9 @@ void PercorreSubArvore(node *tree, param *Vars){
       if(!bb) PercorreSubArvore(tree->second,Vars);
       if(!bb) PercorreSubArvore(tree->third,Vars);
 }
-/*void checaParams(symbolTree *tree){
-      if(tree == NULL) return;
-      int i;
-      for(i = 1; i <= tree->nTable; i++){
-            BuscaChamadas(tree);
-      }
-      for(i = 0; i < tree->nChild; i++){
-            checaParams(tree->childs[i]);
-      }
-}*/
+/*
+     Busca um tipo em um determinado escopo
+*/
 symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token){
       if(tree == NULL) return NULL;
       symbolTree *node = (symbolTree *)malloc(sizeof(symbolTree));
@@ -2809,6 +2851,10 @@ symbolTable *lookForSymbol(symbolTree *tree,char *scope,char *token){
                   return node->table[i];
       }
 }
+/*
+      Compara os tipos das variáveis de uma chamada de função com a declaração da função,
+      além de conferir se a chamada tem a quantidade corretas de argumentos.
+*/
 void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree){
       if(tree == NULL) return;
       int i,j;
@@ -2861,7 +2907,7 @@ void BuscaChamadas(symbolTree *tree, symbolTree *unalteredTree){
                         }
                         
                   }
-                  printf("\n");
+                  //printf("\n");
             }
       }
       for(i = 0; i < tree->nChild; i++){
